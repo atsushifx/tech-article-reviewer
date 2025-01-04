@@ -84,7 +84,8 @@
   - 優先度E
 	- 表現のカジュアル化
 	  - 'Enjoy!', 'Hacking'は変更しない
-	  - `Happu Hacking`の記事全体のトーンを合わせ、カジュアルな文体にする
+	  - 'atsushifxです'は変更しない
+	  - `Happy Hacking!`にあわせ、記事全体をカジュアルかつ口語的な文体にする
 
 """"
 
@@ -146,22 +147,16 @@
 
 """"
 
-:theme: ; 記事を書く上で主題となる話
-
-- レビュープロンプト 'TechArticleReviewer'の紹介
+:theme: ; 記事のテーマ、何を書くか
 
 """"
 
 :target: ; 作成した記事の対象読者
 
- - zenn:<https://zenn.dev/>にて記事を書いている中級ITエンジニア
- - これから記事を書こうとしている初心者ITエンジニア
-
 """"
 
 :goal:  ; 記事の目標 (例: 読者がZennで記事を書けるようにする)
 
-- ITエンジニアが、プロンプトを試してみる
 
 """"
 
@@ -170,8 +165,7 @@
 - TechArtilceReviewer: <https://github.com/atsushifx/tech-article-reviewer/>
 
 """"
-:remark: ; その他、記事をレビューする上で注意してほしいこと
 
-- "atsushifxです。"は変更しない
+:remark: ; その他、特記事項 (たとえば、特定の表現や文体を保持したい場合など)
 
 """"
