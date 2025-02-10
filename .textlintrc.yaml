@@ -1,0 +1,36 @@
+plugins: {}
+filters:
+  comments: true
+  allowlist:
+    allowlistConfigPaths:
+      - .textlint/allowlist.yml
+rules:
+  preset-ja-technical-writing:
+    sentence-length: 100
+    max-kanji-continuous-len:
+      max: 6
+      allow: []
+    no-mix-dearu-desumasu: true
+    ja-no-mixed-period:
+      periodMark: "。"
+      allowPeriodMarks:
+        - "、"
+        - ":"
+    no-exclamation-question-mark: false
+    no-doubled-joshi:
+      strict: false
+  preset-ja-spacing:
+    ja-space-between-half-and-full-width:
+      space:
+        - alphabets
+        - numbers
+  "ja-hiraku": true
+  common-misspellings: true
+  ja-no-orthographic-variants: true
+  "@textlint-ja/textlint-rule-no-synonyms": true
+  no-mixed-zenkaku-and-hankaku-alphabet: true
+  "@proofdict/proofdict":
+    dictURL: "https://atsushifx.github.io/proof-dictionary/"
+  prh:
+    rulePaths:
+      - ./.textlint/dict/prh.yml
