@@ -1,9 +1,20 @@
-# EditorConfig is awesome: https://EditorConfig.org
-#
-# @(#) : default settings for code of contests
-
-# top-most EditorConfig file
+## @(#) : editorconfig common template for atsushifx
 ##
+## EditorConfig is awesome: https://EditorConfig.org
+#
+# @version  1.0.0
+# @date		2025-01-31
+# @author	Furukawa Atsushi <atsushifx@aglabo.com>
+# @license  MIT
+#
+# @description<<
+
+# default settings for til
+# markdown and lint settings
+#
+#
+#<<
+
 root = true
 
 # Unix-style newlines with a newline ending every file
@@ -28,26 +39,35 @@ indent_size = 2
 tab_width = 2
 
 ### Programming Languages
+# prompt for Gen.AI
+[**.prompt]
+indent_style = space
+indent_size = tab
+tab_width = 2
+
 
 ### Documents
 # markdown
 [**.md]
+indent_style = space
 indent_size = tab
 tab_width = 2
-indent_style = space
+
 
 ### Settings
 # json
 [**.json]
-tab_width = 4
-indent_size = tab
 indent_style = tab
+indent_size = tab
+tab_width = 2
+
+
 
 # yaml
 [**.{yaml,yml}]
-tab_width = 2
+indent_style = space
 indent_size = tab
-indent_style = tab
+tab_width = 2
 
 # ini, toml
 [**.{ini,toml}]
