@@ -1,0 +1,11 @@
+{
+	"name": "tech-article-reviewer-root",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"devDependencies": {
+		"@types/node": "^22.13.4",
+		"@types/typescript": "^2.0.0"
+	}
+}
