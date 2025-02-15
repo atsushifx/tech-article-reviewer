@@ -16,10 +16,5 @@
 	"dependencies": {
 		"@tech-article-reviewer/configs": "^0.0.1"
 	},
-	"devDependencies": {
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5.0.0"
-	}
+	"devDependencies": {}
 }
