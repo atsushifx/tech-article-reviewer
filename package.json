@@ -8,12 +8,8 @@
 		"packages/*"
 	],
 	"devDependencies": {
-		"@types/node": "^22.13.4",
-		"@types/typescript": "^2.0.0",
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5.7.3"
+		"typescript": "^5.7.3",
+		"@types/node": "^22.13.4"
 	},
 	"type": "module",
 	"module": "index.ts"
