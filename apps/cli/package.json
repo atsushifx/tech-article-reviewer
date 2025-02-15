@@ -10,7 +10,8 @@
 		"tech-article-reviewer": "./dist/cli.js"
 	},
 	"scripts": {
-		"start": "bun run ./src/cli.ts"
+		"build": "bun build ./src/cli.ts --bundle --outfile=./dist/cli.ts",
+		"start": "bun run ./dist/cli.ts"
 	},
 	"dependencies": {
 		"@tech-article-reviewer/configs": "^0.0.1"
