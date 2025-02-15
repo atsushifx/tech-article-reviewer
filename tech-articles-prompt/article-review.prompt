@@ -189,35 +189,20 @@
 
 :theme: ; 記事のテーマ、何を書くか
 
-- Windows WSL上にカスタマイズしたDebianをセットアップする方法
-
 """"
 
 :target: ; 作成した記事の対象読者
-
-- Windows環境上でプログラミングするソフトウェアエンジニア
 
 """"
 
 :goal:  ; 記事の目標 (例: 読者がZennで記事を書けるようにする)
 
-- 自分専用にカスタマイズしたDebian開発環境が、簡単に構築できるようになること
-
 """"
 
 :link: ; 記事の参考資料となるWebサイトへのリンク
-- WSL を使用して Windows に Linux をインストールする方法 :
-  <https://learn.microsoft.com/ja-jp/windows/wsl/install>
-
-- WSL の基本的なコマンド:
-  <https://learn.microsoft.com/ja-jp/windows/wsl/basic-commands>
-
 
 """"
 
 :remark: ; その他、特記事項 (たとえば、特定の表現や文体を保持したい場合など)
-
-- 記事については、"本記事"ではなく"この記事"を使用する
-
 
 """"
