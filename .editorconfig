@@ -39,6 +39,12 @@ indent_size = 2
 tab_width = 2
 
 ### Programming Languages
+# typescript
+[**.{js,ts,tsx}]
+indent_style = space
+indent_size = tab
+tab_width = 4
+
 # prompt for Gen.AI
 [**.prompt]
 indent_style = space
@@ -60,8 +66,6 @@ tab_width = 2
 indent_style = tab
 indent_size = tab
 tab_width = 2
-
-
 
 # yaml
 [**.{yaml,yml}]

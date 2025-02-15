@@ -11,12 +11,12 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		// modules
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
+		"module": "ESNext",
+		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,
 		"forceConsistentCasingInFileNames": true,
 		// JSX
-		"jsx": "preserve",
+		"jsx": "react-jsx",
 		// Javascript
 		"allowJs": false,
 		"downlevelIteration": false,

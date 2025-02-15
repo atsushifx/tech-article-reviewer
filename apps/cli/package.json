@@ -1,0 +1,24 @@
+{
+	"name": "cli",
+	"version": "0.0.1",
+	"description": "CLI application for reviewing tech articles",
+	"keywords": [],
+	"author": "Furukawa Atsushi <atsushifx@gmail.com>",
+	"license": "MIT",
+	"main": "./dist/cli.js",
+	"bin": {
+		"tech-article-reviewer": "./dist/cli.js"
+	},
+	"scripts": {
+		"start": "bun run ./src/cli.ts"
+	},
+	"dependencies": {
+		"@tech-article-reviewer/configs": "^0.0.1"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	}
+}

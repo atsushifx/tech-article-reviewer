@@ -1,0 +1,8 @@
+{
+	"name": "@tech-article-reviewer/configs",
+	"version": "0.0.1",
+	"private": true,
+	"files": [
+		"typescript"
+	]
+}

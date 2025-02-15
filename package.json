@@ -2,10 +2,19 @@
 	"name": "tech-article-reviewer-root",
 	"private": true,
 	"workspaces": [
+		"configs",
+		"configs/*",
+		"apps/*",
 		"packages/*"
 	],
 	"devDependencies": {
 		"@types/node": "^22.13.4",
-		"@types/typescript": "^2.0.0"
-	}
+		"@types/typescript": "^2.0.0",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.7.3"
+	},
+	"type": "module",
+	"module": "index.ts"
 }
