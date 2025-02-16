@@ -2,9 +2,13 @@
 	"compilerOptions": {
 		// latest ECMAScript
 		"lib": [
-			"ESNext"
+			"ES2022",
+			"DOM"
 		],
-		"target": "esnext",
+		"target": "ES2022",
+		// directory
+		"rootDir": "./src",
+		"outDir": "./dist",
 		// best practice
 		"strict": true,
 		"skipLibCheck": true,
@@ -23,5 +27,12 @@
 		// type definition
 		// Bun の API などを型チェックできるよう、Bun 固有の型定義をグローバルに読み込む
 		"types": []
-	}
+	},
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
 }
