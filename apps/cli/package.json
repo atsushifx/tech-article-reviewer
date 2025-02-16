@@ -9,12 +9,9 @@
 	"bin": {
 		"tech-article-reviewer": "./dist/cli.js"
 	},
-	"scripts": {
-		"build": "bun build ./src/cli.ts --bundle --outfile=./dist/cli.ts",
-		"start": "bun run ./dist/cli.ts"
-	},
+	"scripts": {},
 	"dependencies": {
-		"@tech-article-reviewer/configs": "^0.0.1"
+		"@tech-article-reviewer/configs": "workspace:*"
 	},
 	"devDependencies": {}
 }
