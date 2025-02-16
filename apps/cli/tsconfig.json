@@ -1,5 +1,5 @@
 {
-	"extends": "@tech-article-reviewer/configs/typescript/tsconfig.base.json",
+	"extends": "@tar/configs/typescript/tsconfig.base.json",
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist"
@@ -7,5 +7,4 @@
 	"include": [
 		"src/**/*"
 	]
-
 }

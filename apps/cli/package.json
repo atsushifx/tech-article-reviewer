@@ -14,7 +14,7 @@
 		"build": "tsc --build "
 	},
 	"dependencies": {
-		"@tech-article-reviewer/configs": "workspace:*"
+		"@tar/configs": "workspace:*"
 	},
 	"devDependencies": {}
 }
