@@ -2,9 +2,6 @@
 	"name": "tech-article-reviewer-root",
 	"private": true,
 	"type": "module",
-	"engines": {
-		"pnpm": ">=10.0.0"
-	},
 	"packageManager": "pnpm@10.4.0",
 	"devDependencies": {
 		"typescript": "^5.7.3",
