@@ -9,7 +9,10 @@
 	"bin": {
 		"tech-article-reviewer": "./dist/cli.js"
 	},
-	"scripts": {},
+	"type": "module",
+	"scripts": {
+		"build": "tsc --build "
+	},
 	"dependencies": {
 		"@tech-article-reviewer/configs": "workspace:*"
 	},
