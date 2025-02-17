@@ -6,7 +6,6 @@
   "keywords": [],
   "type": "module",
   "dependencies": {
-    "@tar/tools": "workspace:*",
     "@tar/configs": "workspace:*"
   },
   "devDependencies": {
