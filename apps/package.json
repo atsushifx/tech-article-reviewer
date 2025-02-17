@@ -1,0 +1,15 @@
+{
+  "name": "@tar/tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tools for project  development and build",
+  "keywords": [],
+  "type": "module",
+  "dependencies": {
+    "@tar/tools": "workspace:*",
+    "@tar/configs": "workspace:*"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

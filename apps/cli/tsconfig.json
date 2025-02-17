@@ -1,10 +1,10 @@
 {
-	"extends": "@tar/configs/typescript/tsconfig.base.json",
-	"compilerOptions": {
-		"rootDir": "./src",
-		"outDir": "./dist"
-	},
-	"include": [
-		"src/**/*"
-	]
+  "extends": "@tar/configs/typescript/tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist"
+  },
+  "include": [
+    "src/**/*"
+  ]
 }
