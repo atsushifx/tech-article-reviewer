@@ -6,21 +6,20 @@ const Configuration = {
 	extends: ['@commitlint/config-conventional'],
 
 	rules: {
-		"type-enum": [2, "always", [
-			"build",
-			"chore",
-			"docs",
-			"feat",
-			"fix",
-			"refactor",
-			"revert",
-			"style",
+		'type-enum': [2, 'always', [
+			'build',
+			'chore',
+			'docs',
+			'feat',
+			'fix',
+			'refactor',
+			'revert',
+			'style',
 			// added commit type
-			"merge",
-			"publish",
+			'merge',
+			'publish',
 		]],
 	},
 };
 
-export default Configuration
-
+export default Configuration;

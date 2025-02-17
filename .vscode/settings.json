@@ -1,8 +1,6 @@
 {
-	// default formatter
+  // default formatter
   "editor.defaultFormatter": "dprint.dprint",
-  "editor.formatOnSave": true,
-
-	// language settings
-
+  "editor.formatOnSave": true
+  // language settings
 }
