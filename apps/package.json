@@ -6,10 +6,10 @@
   "keywords": [],
   "type": "module",
   "dependencies": {
-    "@tar/tools": "workspace:*",
     "@tar/configs": "workspace:*"
   },
   "devDependencies": {
+    "mkdirp": "^3.0.1",
     "rimraf": "^6.0.1"
   }
 }
