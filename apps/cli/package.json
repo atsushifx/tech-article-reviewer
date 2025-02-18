@@ -15,8 +15,9 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@tar/tools": "workspace:*",
     "@tar/configs": "workspace:*"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
 }
