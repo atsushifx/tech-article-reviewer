@@ -3,8 +3,11 @@
 # @author	Furukawa Atsushi <atsushifx@gmail.com>
 # @desc<<
 # @since     2025-02-20
+commitlint
 eslintcache
+lefthook
 linenumber
 pids
 stylelintcache
+textlint
 Zenn
