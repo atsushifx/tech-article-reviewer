@@ -189,17 +189,36 @@
 
 :theme: ; 記事のテーマ、何を書くか
 
+  - Windows環境でGitに署名付きコミットをするための設定の解説
+  - Gpg4winのインストールの簡易的な説明
+  - git/config の設定の説明
+
 """"
 
 :target: ; 作成した記事の対象読者
+
+- Windowsでプログラミングをするプログラマー
 
 """"
 
 :goal:  ; 記事の目標 (例: 読者がZennで記事を書けるようにする)
 
+- Windows上でGitの署名付きコミットができる
+- 署名付きコミットがGitHub上にPushできる
+
 """"
 
 :link: ; 記事の参考資料となるWebサイトへのリンク
+
+
+- <https://docs.github.com/ja/authentication/managing-commit-signature-verification/>:
+  Gitの署名付きコミットの手順の解説
+
+- <https://docs.github.com/ja/authentication/managing-commit-signature-verification/generating-a-new-gpg-key>:
+  GitHubによるGPG鍵の作成方法の解説
+
+- <https://docs.github.com/ja/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account>:
+   GitHubにGPG鍵を登録する方法の解説
 
 """"
 
