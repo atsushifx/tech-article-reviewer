@@ -49,7 +49,7 @@ tab_width = 4
 [**.prompt]
 indent_style = space
 indent_size = tab
-tab_width = 4
+tab_width = 2
 
 
 ### Documents
