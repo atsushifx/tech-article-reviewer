@@ -201,6 +201,8 @@
 
 :style ; 技術記事を書くためのスタイルガイド
 
+  - smarthr
+
 """"
 
 :theme: ; 記事のテーマ、何を書くか
@@ -227,14 +229,14 @@
 :link: ; 記事の参考資料となるWebサイトへのリンク
 
 
-- <https://docs.github.com/ja/authentication/managing-commit-signature-verification/>:
-  Gitの署名付きコミットの手順の解説
+- [`GPG`チートシート](https://zenn.dev/shuh/articles/gpg-cheatsheet):
+  `GnuPG`でよく使うコマンドの解説。鍵の作成、共有方法など
 
-- <https://docs.github.com/ja/authentication/managing-commit-signature-verification/generating-a-new-gpg-key>:
-  GitHubによるGPG鍵の作成方法の解説
+- [`Git` のさまざまなツール - 作業内容への署名](https://git-scm.com/book/ja/v2/Git-%E3%81%AE%E3%81%95%E3%81%BE%E3%81%96%E3%81%BE%E3%81%AA%E3%83%84%E3%83%BC%E3%83%AB-%E4%BD%9C%E6%A5%AD%E5%86%85%E5%AE%B9%E3%81%B8%E3%81%AE%E7%BD%B2%E5%90%8D):
+  `Git`でコミットなどに署名をする方法
 
-- <https://docs.github.com/ja/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account>:
-   GitHubにGPG鍵を登録する方法の解説
+- [`GitHub` - コミット署名の検証を管理する](https://docs.github.com/ja/authentication/managing-commit-signature-verification):
+  `GitHub`にて、コミットが認証済みかどうかを管理する方法
 
 """"
 
