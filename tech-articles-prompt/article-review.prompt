@@ -201,42 +201,23 @@
 
 :style ; 技術記事を書くためのスタイルガイド
 
-  - smarthr
+- smarthr
 
 """"
 
 :theme: ; 記事のテーマ、何を書くか
 
-  - Windows環境でGitに署名付きコミットをするための設定の解説
-  - Gpg4winのインストールの簡易的な説明
-  - git/config の設定の説明
-
 """"
 
 :target: ; 作成した記事の対象読者
-
-- Windowsでプログラミングをするプログラマー
 
 """"
 
 :goal:  ; 記事の目標 (例: 読者がZennで記事を書けるようにする)
 
-- Windows上でGitの署名付きコミットができる
-- 署名付きコミットがGitHub上にPushできる
-
 """"
 
 :link: ; 記事の参考資料となるWebサイトへのリンク
-
-
-- [`GPG`チートシート](https://zenn.dev/shuh/articles/gpg-cheatsheet):
-  `GnuPG`でよく使うコマンドの解説。鍵の作成、共有方法など
-
-- [`Git` のさまざまなツール - 作業内容への署名](https://git-scm.com/book/ja/v2/Git-%E3%81%AE%E3%81%95%E3%81%BE%E3%81%96%E3%81%BE%E3%81%AA%E3%83%84%E3%83%BC%E3%83%AB-%E4%BD%9C%E6%A5%AD%E5%86%85%E5%AE%B9%E3%81%B8%E3%81%AE%E7%BD%B2%E5%90%8D):
-  `Git`でコミットなどに署名をする方法
-
-- [`GitHub` - コミット署名の検証を管理する](https://docs.github.com/ja/authentication/managing-commit-signature-verification):
-  `GitHub`にて、コミットが認証済みかどうかを管理する方法
 
 """"
 
