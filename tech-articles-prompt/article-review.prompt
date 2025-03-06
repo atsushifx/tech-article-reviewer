@@ -1,4 +1,4 @@
-# #(@) : ブログレビュー用プロンプト
+## #(@) : ブログレビュー用プロンプト
 /*
  * [技術ブログ レビュー用プロンプト]
  *
@@ -209,23 +209,31 @@
 
 :style ; 技術記事を書くためのスタイルガイド
 
-- smarthr
-
 """"
 
 :theme  ; 記事の主題や扱う内容
+
+- WSLをGitHubからダウンロードしてセットアップする方補
+- WSLインストール時にエラーが出た場合の対処としてGitHubからダウンロード、インストールする方法
 
 """
 
 :target ; 記事の想定する対象読者
 
+- WindowsユーザーでLinux環境でコーディングをしたいプログラマー
+
 """"
 
 :goal		; 記事を読んだ読者が得られる具体的な成果
 
+- `WSL`環境を構築し、正常にLinuxディストリビューションをインストールできること
+
 """"
 
 :link 	 	; 記事の参考資料となるWebサイトへのリンク
+
+- [Windows Subsystem for Linux に関するドキュメント](https://learn.microsoft.com/ja-jp/windows/wsl/)
+- [とほほのWSL入門](https://www.tohoho-web.com/ex/wsl.html)
 
 """"
 
