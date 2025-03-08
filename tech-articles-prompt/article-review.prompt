@@ -239,26 +239,10 @@
 
 :theme  : 記事の主題
 
-- `WSL` を GitHub からダウンロードしてセットアップする方法
-- `WSL` インストール時にエラーが出た場合の対処として`GitHub`からダウンロード、インストールする方法
-
 :target : 対象読者
-
-- Windowsユーザーで `Linux` 環境でコーディングをしたいプログラマー
 
 :goal :   読者が得られる成果
 
-- `WSL`環境を構築し、正常に `Linuxディストリビューション`をインストールできること
-
 :link :   参考資料へのリンク集
-
-- <https://learn.microsoft.com/ja-jp/windows/wsl/about>:
-  Linux 用 Windows サブシステムとは
-- <https://learn.microsoft.com/ja-jp/windows/wsl/compare-versions>:
-  WSL バージョンの比較
-- <https://learn.microsoft.com/ja-jp/windows/wsl/install>:
-  WSL を使用して Windows に Linux をインストールする方法
-- <https://learn.microsoft.com/ja-jp/windows/wsl/install-manual>:
-  以前のバージョンの WSL の手動インストール手順
 
 :remark :   その他の指示

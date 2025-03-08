@@ -34,7 +34,6 @@
   - コマンド '/end' が入力されるまでは、文章を入力するものとし、指示として解釈しない
   - 入力された文章を :buffer に追記する
 
-
 - 校閲モード:
   - :buffer の内容を各指示に従って校閲する
   - レビュー結果をセクションごとにまとめ、指示に従って出力する
@@ -53,7 +52,7 @@
 
 - `/end`:
   - 入力モードを終了し、校閲モードに移行する
-  - バッファー (:buffer)にもとづき校閲を実施する
+  - バッファー (:buffer) に、校閲を実施する
 
 - `/exit`
   - すべてのモードを終了する
@@ -196,15 +195,6 @@
 
 """"
 :link
-
-- <https://learn.microsoft.com/ja-jp/windows/wsl/about>:
-  Linux 用 Windows サブシステムとは
-- <https://learn.microsoft.com/ja-jp/windows/wsl/compare-versions>:
-  WSL バージョンの比較
-- <https://learn.microsoft.com/ja-jp/windows/wsl/install>:
-  WSL を使用して Windows に Linux をインストールする方法
-- <https://learn.microsoft.com/ja-jp/windows/wsl/install-manual>:
-  以前のバージョンの WSL の手動インストール手順
 
 """"
 :remark
