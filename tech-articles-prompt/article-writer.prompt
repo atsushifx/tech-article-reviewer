@@ -1,4 +1,4 @@
-# #(@) : ブログ記事作成用プロンプト
+## #(@) : ブログ記事作成用プロンプト
 /*
  * [技術ブログ 記事作成用プロンプト]
  *
@@ -111,32 +111,19 @@
 
 :theme  ; 記事に書く内容の簡単な説明
 
-- vscode cSpell extensionの設定を別ファイルにして、dotfilesで共有する方法
-- cSpellを設定して、ユーザー辞書ファイルを共通化する方法
-
 """
 
 :target		; 対象読者
 
-- VSCodeでプログラミングをしているプログラマー
 
 
 """"
 
 :goal		; 記事が読者に達成してほしい目標
 
-- 本記事を参考に、自身専用のcSPell共通設定が作成できること
-
-
 """"
 
 :link 	 	; 記事の参考資料となるWebサイトへのリンク
-
-- <https://cspell.org/configuration/>:
-  cSpellのConfigの設定ほほう
-
-- <https://github.com/streetsidesoftware/cspell-dicts>:
-  cSpell標準の辞書セット
 
 """"
 

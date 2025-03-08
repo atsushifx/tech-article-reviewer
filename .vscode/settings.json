@@ -1,6 +1,5 @@
 {
   // default formatter
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "dprint.dprint"
-  // language settings
+  "editor.formatOnSave": true
+  // cSpell settings
 }
