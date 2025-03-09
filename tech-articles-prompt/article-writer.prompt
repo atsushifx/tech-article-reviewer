@@ -148,11 +148,15 @@
 
 :link   : 記事の参考資料となるWebサイトへのリンク
 
-- `WSL` のインストール方法
-  <https://learn.microsoft.com/ja-jp/windows/wsl/install>:
 
-- `WSL` の基本コマンド。
-  <https://learn.microsoft.com/ja-jp/windows/wsl/basic-commands>:
+- [`WSL` のインストール方法](https://learn.microsoft.com/ja-jp/windows/wsl/install):
+  公式ドキュメントによる、`WSL`インストール方法のチュートリアル
+
+- [`WSL` の基本的なコマンド](https://learn.microsoft.com/ja-jp/windows/wsl/basic-commands):
+  `wsl`コマンドが使用できる基本的なサブコマンドの紹介
+
+- [GitHub からパッケージをダウンロードして WSL をセットアップする方法](/atsushifx/articles/wsl2-setup-from-github):
+  `WSL`をセットアップする手順
 
 """"
 

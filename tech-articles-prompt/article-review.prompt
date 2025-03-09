@@ -248,16 +248,38 @@
 :style  : 記事執筆時のスタイルガイドの参照先
 
 """"
-:theme  : 記事の主題
+:theme  : 記事に書く内容の簡単な説明
 
-""""
+- Windowsの`WSL2`にディストリビューション`Debian`をインストールする手順の説明
+
+"""
+
 :target : 対象読者
 
-""""
-:goal :   読者が得られる成果
+- WindowsでLinux環境を使いたいプログラマー
 
 """"
-:link :   参考資料へのリンク集
+
+:goal   : 記事が読者に達成してほしい目標
+
+- `WSL 2`環境を整備してLinuxコマンドラインが使えるようにすること
 
 """"
-:remark :   その他の指示
+
+:link   : 記事の参考資料となるWebサイトへのリンク
+
+
+- [`WSL` のインストール方法](https://learn.microsoft.com/ja-jp/windows/wsl/install):
+  公式ドキュメントによる、`WSL`インストール方法のチュートリアル
+
+- [`WSL` の基本的なコマンド](https://learn.microsoft.com/ja-jp/windows/wsl/basic-commands):
+  `wsl`コマンドが使用できる基本的なサブコマンドの紹介
+
+- [GitHub からパッケージをダウンロードして WSL をセットアップする方法](/atsushifx/articles/wsl2-setup-from-github):
+  `WSL`をセットアップする手順
+
+""""
+
+:remark  : その他の指示
+
+""""
