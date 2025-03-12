@@ -163,8 +163,8 @@
 ### 優先度E : 文章の雰囲気やスタイルに関する提案
 
 - 文体とトーン
-  - "atsushifx です"は変更しない
-  - "それでは、Happy Hacking!"は変更しない
+  - "atsushifx です"は変更しない、空白の調整もしない
+  - "それでは、Happy Hacking!", "Enjoy!"は変更しない
 
 - 空白と句読点
  - 英数字と日本語の間の空白は、可読性を向上させるため適宜調整する
@@ -230,6 +230,9 @@
 
 """"
 :link
+
+- [XDG Base Directory](https://wiki.archlinux.jp/index.php/XDG_Base_Directory):
+  Arch Wikiによる、`XDG Base Directory`仕様の説明
 
 """"
 :remark
