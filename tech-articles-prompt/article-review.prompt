@@ -252,27 +252,17 @@
 """"
 :theme  : 記事に書く内容の簡単な説明
 
-- `WSL 2`の`Debian`用に、基本的な作業用ディレクトリ構成を設定する
-
 """”
 
 :target : 対象読者
-
-- WindowsでLinux環境を使いたいプログラマー
 
 """"
 
 :goal   : 記事が読者に達成してほしい目標
 
-- `WSL 2`環境で、作業用ディレクトリの構成を統一する
-
 """"
 
 :link   : 記事の参考資料となるWebサイトへのリンク
-
-
-- [XDG Base Directory](https://wiki.archlinux.jp/index.php/XDG_Base_Directory):
-  Arch Wikiによる、`XDG Base Directory`仕様の説明
 
 """"
 
