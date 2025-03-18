@@ -252,17 +252,38 @@
 """"
 :theme  : 記事に書く内容の簡単な説明
 
+- APTの基本設定と最適化
+- CDNミラーと日本ミラーの選定理由・設定方法
+- システムのアップデートとアップグレードの実践
+
 """”
 
 :target : 対象読者
+
+- WindowsでLinuxを使った開発をするプログラマー
 
 """"
 
 :goal   : 記事が読者に達成してほしい目標
 
+- WSL 2上で`APT`を設定し、Debianのシステムメンテナンスができるようになること
+
 """"
 
 :link   : 記事の参考資料となるWebサイトへのリンク
+
+
+- [第2章 Debian パッケージ管理](https://www.debian.org/doc/manuals/debian-reference/ch02.ja.html):
+  公式リファレンスによる、Debianのパッケージ管理方法
+
+- [Debian mirrors backed by Lastly CDN](https://deb.debian.org/):
+  Fastly によるcdnミラー
+
+- [CDN 対応ミラーの設定](https://www.debian.or.jp/community/push-mirror.html):
+  Debian 日本語サイトのCDNミラー
+
+- [Debian SourcesList](https://wiki.debian.org/SourcesList):
+  Debian Wikiによる、sources.listの解説
 
 """"
 
