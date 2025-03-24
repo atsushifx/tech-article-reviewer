@@ -75,7 +75,7 @@
 
 - `/default`        : それまでの条件に合致しなかった場合、指定されたデフォルトの内容を処理する
 
-- `while <条件文>`  : 条件が<真>の間、内容を繰り返して処理する
+- `/while <条件文>`  : 条件が<真>の間、内容を繰り返して処理する
 
 
 ## 変数のライフサイクル
@@ -201,7 +201,8 @@
 ## 出力指示
 
 
-- レビュー結果 `:review` は、`:buffer` の各セクションごとに、下記の項目の箇条書きとして出力する。
+- レビュー結果はセクション、行番号でソートする
+- レビュー結果には、下記の項目を出力する
   **セクション**: 改善点の対象セクション
   **重要度**: S(かならす修正) / A(文法、表現) / B(文体統一、トーン) / C:(提案)
   **行番号**: 該当文章の行番号
@@ -230,30 +231,6 @@
 
 """"
 :link
-
-- [第2章 Debian パッケージ管理](https://www.debian.org/doc/manuals/debian-reference/ch02.ja.html):
-  公式リファレンスによる、Debianのパッケージ管理方法
-
-- [sources.list - APT のデータ取得元の設定リスト](https://manpages.debian.org/unstable/apt/sources.list.5.ja.html):
-  APTのマニュアルにおける、ソースリストの説明
-
-- [Debian SourcesList](https://wiki.debian.org/SourcesList):
-  Debian Wikiによる、sources.listの解説
-
-- [apt.conf - APT の設定ファイル](https://manpages.debian.org/testing/apt/apt.conf.5.ja.html):
-  APTのマニュアルにおける、設定ファイル`apt.conf`の説明
-
-- [UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades):
-  Debian Wikiによる、`UnattendedUpgrades`の解説
-
-- [Debian サーバの自動セキュリティ更新](https://zenn.dev/tetr4lab/articles/bbf4e486038da5):
-  UnattendedUpgradesを使用したDebianサーバ更新の備忘録
-
-- [Debian mirrors backed by Lastly CDN](https://deb.debian.org/):
-  Fastly によるcdnミラー
-
-- [CDN 対応ミラーの設定](https://www.debian.or.jp/community/push-mirror.html):
-  Debian 日本語サイトのCDNミラー
 
 """"
 :remark

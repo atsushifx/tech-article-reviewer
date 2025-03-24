@@ -101,6 +101,10 @@
   - `:target` で示された読者を意識して文章を組み立てる
   - `:role` で示された筆者として、文章を作成亜する
   - `:remark` の指示に従って、文章を作成する
+- 変更しない表現:
+  - あいさつ 'atsushifx です'は変更しない
+  - あいさつ 'Enjoy!'は変更しない
+  - あいさつ 'それでは、Happy Hacking!'は変更しない
 
 ### 重要度A : 文章表現のレビュー
 
@@ -131,50 +135,17 @@
 
 :theme  : 記事に書く内容の簡単な説明
 
-- APTの基本設定と最適化
-- CDNミラーと日本ミラーの選定理由・設定方法
-- システムのアップデートとアップグレードの実践
-
 """
 
 :target : 対象読者
-
-- WindowsでWSL 2を使い始めた初心者プログラマー
-- WindowsでLinuxを使った開発をする中級プログラマー
 
 """"
 
 :goal   : 記事が読者に達成してほしい目標
 
-- aptを設定し、
-
 """"
 
 :link   : 記事の参考資料となるWebサイトへのリンク
-
-- [第2章 Debian パッケージ管理](https://www.debian.org/doc/manuals/debian-reference/ch02.ja.html):
-  公式リファレンスによる、Debianのパッケージ管理方法
-
-- [sources.list - APT のデータ取得元の設定リスト](https://manpages.debian.org/unstable/apt/sources.list.5.ja.html):
-  APTのマニュアルにおける、ソースリストの説明
-
-- [Debian SourcesList](https://wiki.debian.org/SourcesList):
-  Debian Wikiによる、sources.listの解説
-
-- [apt.conf - APT の設定ファイル](https://manpages.debian.org/testing/apt/apt.conf.5.ja.html):
-  APTのマニュアルにおける、設定ファイル`apt.conf`の説明
-
-- [UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades):
-  Debian Wikiによる、`UnattendedUpgrades`の解説
-
-- [Debian サーバの自動セキュリティ更新](https://zenn.dev/tetr4lab/articles/bbf4e486038da5):
-  UnattendedUpgradesを使用したDebianサーバ更新の備忘録
-
-- [Debian mirrors backed by Lastly CDN](https://deb.debian.org/):
-  Fastly によるcdnミラー
-
-- [CDN 対応ミラーの設定](https://www.debian.or.jp/community/push-mirror.html):
-  Debian 日本語サイトのCDNミラー
 
 """"
 
