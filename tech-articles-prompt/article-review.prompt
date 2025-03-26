@@ -127,7 +127,7 @@
   - 全角／半角の統一
     - ASCIIコードで表現できる英数字、記号は半角を使用する
       - 特に、読みやすさが損なわれる場合は全角を許容する
-    - 括弧は半角を使用する
+    - 括弧は半角を使用する (全角括弧「（」「）」は使用しない)
   - バックティックの付加、削除
     - 以下の用語はバックティック(`) でくくる
       - 技術用語
@@ -293,17 +293,35 @@
 """"
 :theme  : 記事に書く内容の簡単な説明
 
+- WSL 2上のDebianを日本語環境にする方法
+
 """”
 
 :target : 対象読者
+
+- はじめてWSL 2を使う初心者プログラマー
 
 """"
 
 :goal   : 記事が読者に達成してほしい目標
 
+- WSL 2にDebianをインストールして日本語環境を設定できること
+
 """"
 
 :link   : 記事の参考資料となるWebサイトへのリンク
+
+- [パッケージ: task-japanese](https://packages.debian.org/ja/sid/tasks/task-japanese):
+  Debianを日本語化するタスクパッケージ
+
+- [ロケール - Arch Wiki](https://wiki.archlinux.jp/index.php/%E3%83%AD%E3%82%B1%E3%83%BC%E3%83%AB):
+  Arch Wikiによるロケールの説明
+
+- [Time Zone Database](https://ja.wikipedia.org/wiki/Tz_database):
+  Wikipedia によるTimeZoneについての説明
+
+- [8.1. 他の言語用にシステムを設定](https://debian-handbook.info/browse/ja-JP/stable/basic-configuration.html#sect.config-language-support):
+  Debianハンドブックによる、システムに言語を設定する方法
 
 """"
 

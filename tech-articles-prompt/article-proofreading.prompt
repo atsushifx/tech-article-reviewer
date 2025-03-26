@@ -232,6 +232,18 @@
 """"
 :link
 
+- [パッケージ: task-japanese](https://packages.debian.org/ja/sid/tasks/task-japanese):
+  Debianを日本語化するタスクパッケージ
+
+- [ロケール - Arch Wiki](https://wiki.archlinux.jp/index.php/%E3%83%AD%E3%82%B1%E3%83%BC%E3%83%AB):
+  Arch Wikiによるロケールの説明
+
+- [Time Zone Database](https://ja.wikipedia.org/wiki/Tz_database):
+  Wikipedia によるTimeZoneについての説明
+
+- [8.1. 他の言語用にシステムを設定](https://debian-handbook.info/browse/ja-JP/stable/basic-configuration.html#sect.config-language-support):
+  Debianハンドブックによる、システムに言語を設定する方法
+
 """"
 :remark
 
