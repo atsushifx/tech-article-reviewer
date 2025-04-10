@@ -22,7 +22,7 @@ pre-commit:
       run: secretlint --maskSecrets --secretlintignore .gitignore "{staged_files}"
 
     textlint:
-      glob: '**/*.prompt'
+      glob: '**/*'
       run: textlint --cache "{staged_files}"
 
 # check commit message style
