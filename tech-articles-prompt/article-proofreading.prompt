@@ -4,6 +4,8 @@
  *
  * Copyright (c) 2025 atsushifx
  * Licensed under MIT License
+ *
+ *
  * 改善案はGitHub Issues/PRsでお願いします：<https://github.com/atsushifx/tech-article-reviewer>
  */
 ## 基本動作
@@ -239,6 +241,18 @@
 
 """"
 :link
+
+- [pester.dev](https://pester.dev/):
+  Pester 公式サイト
+
+- [ChatGPT](https://chatgpt.com/):
+  バイブコーディングに使用したAIチャットサイト
+
+- [カスタマイズプロンプト](https://gist.github.com/atsushifx/a5ae4f4b0e80290219bf137544061d36):
+  AIチャットに、3人を登場させるためのプロンプト
+
+- [aglabo/setup-scripts](https://github.com/atsushifx/aglabo-setup-scripts):
+  この記事での開発の成果を収めたGitHubリポジトリ
 
 """"
 :remark
