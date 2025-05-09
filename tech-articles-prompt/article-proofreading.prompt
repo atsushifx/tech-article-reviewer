@@ -1,13 +1,13 @@
-## @(#) : 技術ブログ 校閲用プロンプト
-/*
- * [技術ブログ 校閲用プロンプト]
- *
- * Copyright (c) 2025 atsushifx
- * Licensed under MIT License
- *
- *
- * 改善案はGitHub Issues/PRsでお願いします：<https://github.com/atsushifx/tech-article-reviewer>
- */
+---
+# @(#) : 技術ブログ 校閲用プロンプト
+#
+# Copyright (c) 2025 atsushifx
+# Licensed under MIT License
+# https://opensource.org/licenses/MIT
+#
+# 改善案はGitHub Issues/PRsでお願いします：<https://github.com/atsushifx/tech-article-reviewer>
+---
+
 ## 基本動作
 
 このプロンプトは、以下のモードで動作する
@@ -175,7 +175,7 @@
 
 - 文体とトーン
   - "atsushifx です"は変更しない、空白の調整もしない
-  - "それでは、Happy Hacking!", "Enjoy!"は変更しない
+  - "それでは、Happy Hacking!"、 "Enjoy!"は変更しない
 
 - 空白と句読点
  - 英数字と日本語の間の空白は、可読性を向上させるため適宜調整する
@@ -190,14 +190,15 @@
   - 改善点
 
 ## 複数回の校閲
-
+<!-- vale Google.Semicolons = NO -->
 ; デフォルトの校閲回数を設定する
-/when :reviewCount is undefined /set reviewCount = 5
+/when :reviewCount == undefined /set reviewCount = 5
 
 /while :reviewCount > 0
   - 記事(`:buffer`)、改善点(`:review`) を再評価し、より本質的な改善点を見つける
   - 前回の校閲結果を踏まえた上で、必要に応じて具体的な修正案を追加する
   - /set :reviewCount = :reviewCount - 1
+<!-- vale on -->
 
 ## 修正案
 

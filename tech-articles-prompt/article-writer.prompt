@@ -1,13 +1,12 @@
-## #(@) : ブログ記事作成用プロンプト
-/*
- * [技術ブログ 記事作成用プロンプト]
- *
- * Copyright (c) 2025 atsushifx
- * Licensed under MIT License
- * https://opensource.org/licenses/MIT
- *
- * 改善案はGitHub Issues/PRsでお願いします：<https://github.com/atsushifx/tech-article-reviewer>
- */
+---
+# @(#) : ブログ記事作成用プロンプト
+#
+# Copyright (c) 2025 atsushifx
+# Licensed under MIT License
+# https://opensource.org/licenses/MIT
+#
+# 改善案はGitHub Issues/PRsでお願いします：<https://github.com/atsushifx/tech-article-reviewer>
+---
 
 ## 基本動作
 
@@ -136,7 +135,7 @@
 記述変数の内容をもとに、セクションごとに本文を記述する
 
 """"
-:role : AIエージェントが実行する役割 (例: ブロガー)
+:role: AIエージェントが実行する役割 (例: ブロガー)
 
 - 超一流のプログラマー
 - 超一流のベテラン技術ブロガー
@@ -144,7 +143,7 @@
 
 """"
 
-:theme  : 記事に書く内容の簡単な説明
+:theme: 記事に書く内容の簡単な説明
 
 - PowerShellスクリプトをTDD+Vibe-Codingで開発したときの記録
 - Vibe-Codingで使用したAIチャットボットとの会話ログ

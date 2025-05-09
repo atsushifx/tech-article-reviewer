@@ -1,11 +1,13 @@
-## #(@) : ブログレビュー用プロンプト
-/*
- * [技術ブログ レビュー用プロンプト]
- *
- * Copyright (c) 2025 atsushifx
- * Licensed under MIT License
- * 改善案はGitHub Issues/PRsでお願いします：<https://github.com/atsushifx/tech-article-reviewer>
- */
+---
+# @(#) : ブログレビュー用プロンプト
+#
+#
+# Copyright (c) 2025 atsushifx
+# Licensed under MIT License
+# https://opensource.org/licenses/MIT
+#
+* 改善案はGitHub Issues/PRsでお願いします：<https://github.com/atsushifx/tech-article-reviewer>
+---
 
 ## 基本動作
 
@@ -71,7 +73,7 @@
 
 - `/review` [レビュー指示] [<セクション>]:
   - [支持]が指定された場合は、指定された支持のレビューのみ行う
-  - 指定されたセクション (例: "1.1","はじめに"など) のレビュー結果を出力する
+  - 指定されたセクション (例: "1.1"、"はじめに"など) のレビュー結果を出力する
   - セクションが未指定の場合は、すべてのレビュー結果を出力する
 
 - /quickfix [:fix]
@@ -215,15 +217,16 @@
     修正の理由: 文章を修正する理由
 
 ## 複数回レビュー (繰り返しによるレビューの改善)
-
+<!-- vale Google.Semicolons = NO -->
 ; デフォルトでは、レビューを5回繰り返す。
-- /when :reviewCount is undefined /set :reviewCount = 5
+- /when :reviewCount == undefined /set :reviewCount = 5
 
 ; 記事本文+レビュー結果のレビューを reviewCount の回数だけ繰り返す
 - /while reviewCount > 0
   - 記事本文 `:buffer` と レビュー結果 `:review` を基に以下を行う
     - レビュー指示1から修正案作成までを実行し、より本質的な修正案を作成する
   - /set :reviewCount = :reviewCount - 1
+<!-- vale on -->
 
 ## レビュー結果まとめ
 
