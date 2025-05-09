@@ -19,6 +19,10 @@
 **.diff
 **.patch
 
+#	ignore cache
+**.*cache
+.cache
+
 ### Editor's ignore
 
 #  Visual Studio Code
@@ -65,11 +69,6 @@ node_modules/
 # Optional npm cache directory
 .npm
 
-# Optional eslint cache
-.eslintcache
-
-# Optional stylelint cache
-.stylelintcache
 
 # Optional REPL history
 .node_repl_history
