@@ -27,7 +27,7 @@
     "**/*.jsonc",
     "**/*.yml",
     "**/*.yaml",
-    "shared/configs/**/*",
+    "**/+.md",
   ],
   "excludes": [
     "**/node_modules/**",
