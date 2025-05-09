@@ -1,3 +1,18 @@
+## @(#) : textlintrc.yaml: yaml type textlint config
+#
+# @version	1.0.0
+# @author   atsushifx <atsushifx@gmail.com>
+# @since    2025-04-17
+# @license  MIT
+#
+# @description<<
+#
+# This configuration file sets up textlint for Japanese technical writing.
+# It includes rules for sentence length, kanji usage, spacing, and more,
+# ensuring consistent and error-free documentation.
+#
+#<<
+
 plugins: {}
 filters:
   comments: true
@@ -6,17 +21,16 @@ filters:
       - .textlint/allowlist.yml
 rules:
   preset-ja-technical-writing:
-    sentence-length: 100
+    sentence-length:
+      max: 100
     max-kanji-continuous-len:
-      max: 6
+      max: 8
       allow: []
     no-mix-dearu-desumasu: true
     ja-no-mixed-period:
-      periodMark: "。"
       allowPeriodMarks:
         - "、"
         - ":"
-    no-exclamation-question-mark: false
     no-doubled-joshi:
       strict: false
   preset-ja-spacing:
@@ -24,7 +38,7 @@ rules:
       space:
         - alphabets
         - numbers
-  "ja-hiraku": true
+  ja-hiraku: true
   common-misspellings: true
   ja-no-orthographic-variants: true
   "@textlint-ja/textlint-rule-no-synonyms": true

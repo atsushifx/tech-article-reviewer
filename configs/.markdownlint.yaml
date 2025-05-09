@@ -1,0 +1,26 @@
+# src: .markdownlint.yaml
+#
+## @(#) : textlintrc.yaml: yaml type textlint config
+#
+# @version	1.0.0
+# @author   atsushifx <atsushifx@gmail.com>
+# @since    2025-04-17
+# @license  MIT
+#
+# @description<<
+# Basic markdownlint settings for consistent formatting and readability.
+#<<
+
+# markdown lint rule configs
+default: true
+# lint rules
+whitespace: true
+line-length:
+  line_length: 120
+  code_block_line_length: 120
+ol-prefix: true
+emphasis-style:
+  style: asterisk
+strong-style:
+  style: asterisk
+no-hard-tabs: true

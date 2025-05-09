@@ -12,6 +12,6 @@
 #<<
 
 packages:
-  - "configs"
+  - "shared/**"
   - "apps/*"
   - "packages/*"

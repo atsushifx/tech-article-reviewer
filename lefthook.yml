@@ -1,13 +1,15 @@
+# src: lefthook.yml
 ## @(#) : lefthook config
 #
-# @version 1.0.0
-# @author  Furukawa, Atsushi <atsushifx@gmail.com>
-# @date    2024-02-05
-# @license MIT
+# @version  1.0.1
+# @date     2025-04-25
+# @author   Furukawa, Atsushi <atsushifx@gmail.com>
+# @license  MIT
 #
-# @desc<<
+# @description<<
 #
-# git hook configuration by lefthook
+# Git hook configuration powered by Lefthook.
+# Ensures commit hygiene with secret scanning and commit message linting.
 #
 #<<
 
@@ -15,19 +17,35 @@ pre-commit:
   parallel: true
   commands:
     gitleaks:
-      run: gitleaks protect --staged
+      run: gitleaks protect --config ./configs/gitleaks.toml --staged
 
     secretlint:
-      glob: '**/*'
-      run: secretlint --maskSecrets --secretlintignore .gitignore "{staged_files}"
+      glob: "**/*"
+      run: >
+        secretlint
+        --secretlintrc ./configs/secretlint.config.yaml
+        --secretlintignore .gitignore
+        --maskSecrets
+        "{staged_files}"
 
     textlint:
-      glob: '**/*'
-      run: textlint --cache "{staged_files}"
+      glob: "**/*.md"
+      run: >
+        textlint
+        --config ./configs/textlintrc.yaml
+        --cache
+        --cache-location .cache/textlint_cache
+        "{staged_files}"
 
-# check commit message style
+    markdownlint:
+      glob: "**/*.md"
+      run: >
+        markdownlint-cli2
+        --config ./configs/.markdownlint.yaml
+        "{staged_files}"
+
 commit-msg:
   parallel: true
   commands:
     commitlint:
-      run: pnpm exec commitlint -e
+      run: commitlint --config ./configs/commitlint.config.js --edit
