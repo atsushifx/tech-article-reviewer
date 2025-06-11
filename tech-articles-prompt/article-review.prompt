@@ -293,26 +293,26 @@
 """"
 :theme  : 記事に書く内容の簡単な説明
 
-- WSL 2 上の Debian を使うための基礎的な知識の説明
-- WSL 2 上の Debian を使うための基本的な操作の説明
-
+- [ESTA](https://github.com/atsushifx/easy-setup-toos-action)用オンボーディングドキュメント
 
 """”
 
 :target : 対象読者
 
-- WSL 2を初めて使う初心者プログラマー
-- WSL 2で開発環境を構築したい中級プログラマー
+- WindowsでTypeScript開発をおこなうプログラマー
 
 """"
 
 :goal   : 記事が読者に達成してほしい目標
 
-- WSL 上のDebianで基本的なファイルの編集ができること
+- オンボーディングドキュメントを最後まで読み終わること
 
 """"
 
 :link   : 記事の参考資料となるWebサイトへのリンク
+
+- [オンボーディングガイド](https://github.com/atsushifx/easy-setup-tools-action/blob/main/docs/onboarding/README.ja.md):
+- [ESTA-Issues](https://github.com/atsushifx/easy-setup-tools-action/issues):
 
 """"
 
