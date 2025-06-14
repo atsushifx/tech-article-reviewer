@@ -314,26 +314,17 @@
 """"
 :theme  : 記事に書く内容の簡単な説明
 
-- [ESTA](https://github.com/atsushifx/easy-setup-toos-action)用オンボーディングドキュメント
-
 """”
 
 :target : 対象読者
-
-- WindowsでTypeScript開発をおこなうプログラマー
 
 """"
 
 :goal   : 記事が読者に達成してほしい目標
 
-- オンボーディングドキュメントを最後まで読み終わること
-
 """"
 
 :link   : 記事の参考資料となるWebサイトへのリンク
-
-- [オンボーディングガイド](https://github.com/atsushifx/easy-setup-tools-action/blob/main/docs/onboarding/README.ja.md):
-- [ESTA-Issues](https://github.com/atsushifx/easy-setup-tools-action/issues):
 
 """"
 
