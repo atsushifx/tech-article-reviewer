@@ -19,6 +19,17 @@
 **.diff
 **.patch
 
+# env
+.env
+.env.*
+.env*
+.env.keys
+
+# cache
+.cache/
+
+
+
 ### Editor's ignore
 
 #  Visual Studio Code

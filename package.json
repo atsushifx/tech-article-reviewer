@@ -2,8 +2,11 @@
   "name": "tech-article-reviewer-root",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.4.1",
-  "devDependencies": {
-    "typescript": "^5.7.3"
+  "scripts": {
+    "check:spells": "pnpm exec cspell  --config .vscode/cspell.json --cache --cache-location .cache/cspell/cSpellCache",
+    "lint:text": "textlint --config ./configs/textlintrc.yaml --cache --cache-location .cache/textlint-cache/textlintCache ",
+    "lint:markdown": "markdownlint-cli2 --config ./configs/.markdownlint.yaml ",
+    "lint:filename": "pnpm exec ls-lint --config ./configs/ls-lint.yaml ",
+    "lint:secrets": "secretlint --secretlintrc ./configs/secretlint.config.yaml --secretlintignore .gitignore --maskSecrets **/*"
   }
 }
