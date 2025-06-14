@@ -1,105 +1,110 @@
+## src: ./.editorconfig
+##
 ## @(#) : editorconfig common template for atsushifx
 ##
 ## EditorConfig is awesome: https://EditorConfig.org
 #
 # @version  1.0.0
-# @date		2025-01-31
-# @author	Furukawa Atsushi <atsushifx@aglabo.com>
+# @since    2025-05-14
+# @author   atsushifx <https://github.com/atsushifx/>
 # @license  MIT
 #
 # @description<<
-
-# default settings for til
-# markdown and lint settings
 #
+# Common editor settings for general programming and documentation files.
+# Applies consistent indentation and line-ending rules.
 #
 #<<
 
 root = true
 
-# Unix-style newlines with a newline ending every file
+# ─────────────────────────────
+# Base Settings
+# ─────────────────────────────
 [*]
 end_of_line = lf
 insert_final_newline = true
-
-# default character-set
 charset = utf-8
-
-# default indent style
-indent_style = tab
-indent_size = tab
-tab_width = 4
-
-
-### Settings by ext type
-# no ext: general files settings
-[**.]
 indent_style = space
 indent_size = 2
 tab_width = 2
 
-### Programming Languages
-# typescript
-[**.{js,ts,tsx}]
-indent_style = space
-indent_size = tab
-tab_width = 4
-
-# prompt for Gen.AI
-[**.prompt]
-indent_style = space
-indent_size = tab
-tab_width = 2
-
-
-### Documents
-# markdown
-[**.md]
-indent_style = space
-indent_size = tab
-tab_width = 2
-
-
-### Settings
-# json
-[**.json]
-indent_style = tab
-indent_size = tab
-tab_width = 2
-
-# yaml
-[**.{yaml,yml}]
-indent_style = space
-indent_size = tab
-tab_width = 2
-
-# ini, toml
-[**.{ini,toml}]
-indent_style = tab
-indent_size = tab
-tab_width = 4
-
-# rc files
-[**rc]
-indent_style = space
-indent_size = tab
-tab_width = 2
-
-### Shell Scripts
-# shell script
-[**.{sh,bash,zsh}]
+# ─────────────────────────────
+# Documents
+# ─────────────────────────────
+[*.md]
 indent_style = space
 indent_size = 2
 tab_width = 2
 
-### Git config
-# for git config
-[**.git*]
+# ─────────────────────────────
+# JSON
+# ─────────────────────────────
+[*.json]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# ─────────────────────────────
+# YAML
+# ─────────────────────────────
+[*.yaml]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+[*.yml]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# ─────────────────────────────
+# INI / TOML
+# ─────────────────────────────
+[*.ini]
 indent_style = tab
-indent_size = tab
+tab_width = 4
+
+[*.toml]
+indent_style = tab
+tab_width = 4
+
+# ─────────────────────────────
+# rc Files
+# ─────────────────────────────
+[*rc]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# ─────────────────────────────
+# Shell Scripts
+# ─────────────────────────────
+[*.{sh,bash,zsh}]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# PowerShell
+[*.ps1]
+indent_style = space
+indent_size = 4
+tab_width = 4
+
+# ─────────────────────────────
+# Git Config Files
+# ─────────────────────────────
+[*.git*]
+indent_style = tab
 tab_width = 4
 
 [**/git/*]
 indent_style = tab
-indent_size = tab
 tab_width = 4
+
+# ─────────────────────────────
+# Special Files (e.g. Dockerfile, LICENSE)
+# ─────────────────────────────
+# [Dockerfile]
+# indent_style = space
+# indent_size = 2
