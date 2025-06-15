@@ -6,56 +6,51 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 {
-  "$schema": "https://dprint.dev/schemas/v0.json",
-  // Global settings
-  "lineWidth": 120,
-  "indentWidth": 2,
-  "useTabs": false,
-  "newLineKind": "lf",
-  // Include/Exclude patterns
-  "includes": [
-    "**/*.js",
-    "**/*.ts",
-    "**/*.json",
-    "**/*.jsonc",
-    "**/*.yml",
-    "**/*.yaml",
-    // Documents
-    "**/*.md",
-    "**/*.prompt",
-  ],
-  "excludes": [
-    "**/node_modules/**",
-    "**/*lock",
-    "**/lib/**",
-    "**/module/**",
-    "**/dist/**",
-    //
-    "**lock.*",
-    // Documents
-    "CONTRIBUTING**.md",
-    "CODE_OF_CONDUCT**.md",
-  ],
-  // Plugins
-  "plugins": [
-    "https://plugins.dprint.dev/typescript-0.95.5.wasm",
-    "https://plugins.dprint.dev/json-0.20.0.wasm",
-    "https://plugins.dprint.dev/markdown-0.18.0.wasm",
-    "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.5.1.wasm",
-  ],
-  // Language-specific settings
-  "typescript": {
-    "indentWidth": 2,
-    "useTabs": false,
-    "quoteStyle": "preferSingle",
-    "preferSingleLine": false,
-    "useBraces": "always",
-    "arrowFunction.useParentheses": "force",
-    "trailingCommas": "onlyMultiLine",
-  },
-  "json": {},
-  "markdown": {
-    "emphasisKind": "asterisks",
-  },
-  "yaml": {},
+	"$schema": "https://dprint.dev/schemas/v0.json",
+	// Global settings
+	"lineWidth": 120,
+	"indentWidth": 2,
+	"useTabs": false,
+	"newLineKind": "lf",
+	// Include/Exclude patterns
+	"includes": [
+		"**/*.js",
+		"**/*.ts",
+		"**/*.json",
+		"**/*.jsonc",
+		"**/*.yml",
+		"**/*.yaml",
+		// Documents
+		"**/*.md",
+		"**/*.prompt",
+	],
+	"excludes": [
+		"**/node_modules/**",
+		"**/*lock",
+		//
+		"**lock.*",
+		// Documents
+	],
+	// Plugins
+	"plugins": [
+		"https://plugins.dprint.dev/typescript-0.95.5.wasm",
+		"https://plugins.dprint.dev/json-0.20.0.wasm",
+		"https://plugins.dprint.dev/markdown-0.18.0.wasm",
+		"https://plugins.dprint.dev/g-plane/pretty_yaml-v0.5.1.wasm",
+	],
+	// Language-specific settings
+	"typescript": {
+		"indentWidth": 2,
+		"useTabs": false,
+		"quoteStyle": "preferSingle",
+		"preferSingleLine": false,
+		"useBraces": "always",
+		"arrowFunction.useParentheses": "force",
+		"trailingCommas": "onlyMultiLine",
+	},
+	"json": {},
+	"markdown": {
+		"emphasisKind": "asterisks",
+	},
+	"yaml": {},
 }

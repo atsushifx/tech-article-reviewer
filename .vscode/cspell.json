@@ -1,4 +1,17 @@
-// @(#) :  cspell config for user centric settings
+// @(#) : cspell settings for ths workspace
+/**
+ *
+ * @version  1.0.0
+ * @author   Furukawa, Atsushi <https://github.com/atsushifx>
+ * @since    2025-02-27
+ * @license  MIT
+ *
+ * @description<<
+ *
+ * this files is cspell (Code Spell Checker) settings for this workspace.
+ *
+ *<<
+ */
 {
   "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json",
   "version": "0.2",
@@ -10,10 +23,10 @@
   "dictionaryDefinitions": [
     {
       "name": "project-dic",
-      "description": "user dictionary for this project",
+      "description": "dictionary for this project",
       "path": "./cspell/dicts/project.dic",
       "addWords": true,
       "scope": "workspace"
     }
-  ]
+  ],
 }
