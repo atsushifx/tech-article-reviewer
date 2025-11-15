@@ -1,20 +1,10 @@
-## src: ./.editorconfig
-##
-## @(#) : editorconfig common template for atsushifx
-##
-## EditorConfig is awesome: https://EditorConfig.org
+# src: shared/configs/secretlint.config.base.yaml
+# @(#) : editorconfig base configs (templates)
 #
-# @version  1.0.0
-# @since    2025-05-14
-# @author   atsushifx <https://github.com/atsushifx/>
-# @license  MIT
+# Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
 #
-# @description<<
-#
-# Common editor settings for general programming and documentation files.
-# Applies consistent indentation and line-ending rules.
-#
-#<<
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
 
 root = true
 
@@ -105,6 +95,7 @@ tab_width = 4
 # ─────────────────────────────
 # Special Files (e.g. Dockerfile, LICENSE)
 # ─────────────────────────────
+
 # [Dockerfile]
 # indent_style = space
 # indent_size = 2
