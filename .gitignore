@@ -1,16 +1,11 @@
-## src: ./.gitignore
-## @(#) : gitignore for textlint filter (skip-frontmatter)
+# src: .gitignore
+# @(#) : typescript compile settings
 #
-# @version	1.0.0
-# @author   atsushifx <https://github.com/atsushifx/>
-# @since    2025-05-14
+# Copyright (c) 2025 atsushifx <http://github.com/atsushifx>
 #
-# @description<<
-#
-# Git ignore rules for development template
-# Includes OS Specific  files, VSCode, general(logs, patch, ...)
-#
-#<<
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+
 
 ##		General
 #	OS specific files
@@ -18,7 +13,7 @@
 thumbs.db
 
 #	logs, patches
-*.log*
+*.log
 *.diff
 *.patch
 
@@ -36,6 +31,27 @@ $~*
 *swp
 *lock
 
+#	.env files
+.env*
+.env.*
+
+## AI generated files
+
+## Coding AI depended
+CLAUDE.md
+.claude/*
+!.claude/agents/
+!.claude/agents/*
+
+# MCP server dependency files
+.serena/
+.lsmcp/
+
+## Temporary Directory
+temp/
+tmp/
+
+
 ##		Editor
 #	VSCode
 .vscode/*
@@ -45,109 +61,4 @@ $~*
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 !.vscode/cspell*
-
-###	Develop
-# Node
-# Node.js / JS project ignores
-# Output directory
-dist
-**/module/*
-**/lib/*
-
-# temporary directory
-temp/
-tmp/
-
-# gibo: Node.gitignore
-logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# Node diagnostic reports
-report.*.json
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage tools
-lib-cov
-coverage
-*.lcov
-.nyc_output
-
-# Build & intermediate dirs
-build/Release
-node_modules/
-jspm_packages/
-web_modules/
-bower_components
-.lock-wscript
-lib-cov
-
-# Tool caches
-.grunt
-.cache
-.parcel-cache
-.rpt2_cache/
-.rts2_cache_*/
-.fusebox/
-.dynamodb/
-.tern-port
-.vscode-test
-
-# TypeScript build artifacts
-*.tsbuildinfo
-
-# Lint caches
-*cache
-.eslintcache
-.stylelintcache
-
-# Output artifacts
-*.tgz
-.yarn-integrity
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# Dotenv
-.env
-.env*
-.env.*
-
-# Next.js
-.next
-out
-
-# Nuxt.js
-.nuxt
-
-# Gatsby
-.cache/
-
-# VuePress
-.vuepress/dist
-.temp
-.cache/
-
-# VitePress
-**/.vitepress/dist
-**/.vitepress/cache
-
-# Docusaurus
-.docusaurus/
-
-# Serverless
-.serverless/
-
-# vitest
-.vitest
 

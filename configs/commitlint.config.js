@@ -9,7 +9,7 @@
 // type check for typescript
 
 // commit lint common configs
-const baseConfig= {
+const baseConfig = {
   extends: ['@commitlint/config-conventional'],
   rules: {
     'type-enum': [2, 'always', [
