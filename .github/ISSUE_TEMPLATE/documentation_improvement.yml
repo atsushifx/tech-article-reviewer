@@ -1,0 +1,72 @@
+name: 📄 Documentation Improvement
+description: Report documentation errors or suggest improvements.
+title: '[Docs]'
+labels: ['documentation']
+assignees: ['atsushifx']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve our documentation!
+        Please describe the issue or suggestion as clearly as possible 🙏
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: 📚 Document Type
+      description: Select the type of document.
+      options:
+        - README.md
+        - CLAUDE.md
+        - CONTRIBUTING.md
+        - SECURITY.md
+        - Prompt files (tech-articles-prompt/)
+        - Other documentation
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: 📄 Specific Document
+      description: File path or section name.
+      placeholder: 'e.g., README.md - Setup section'
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: 🔍 Issue Type
+      description: What kind of issue did you find?
+      options:
+        - Typo or grammar error
+        - Unclear explanation
+        - Missing information
+        - Outdated information
+        - Incorrect information
+        - Translation issue
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 📝 What's the issue?
+      description: Describe the problem you found in the documentation.
+      placeholder: 'The installation instructions are unclear because...'
+
+  - type: textarea
+    attributes:
+      label: 💡 Suggested improvement
+      description: How would you improve it? (optional but helpful)
+      placeholder: 'I suggest changing the wording to...'
+
+  - type: textarea
+    attributes:
+      label: 📎 Additional context
+      description: Related links, screenshots, or other helpful information.
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        🤖 This project is supported by AI agents: **Elpha**, **Kobeni**, and **Tsumugi**.

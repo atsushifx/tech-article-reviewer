@@ -1,0 +1,55 @@
+name: ❓ Question
+description: Ask about usage or specifications.
+title: '[Q&A]'
+labels: ['Q&A']
+assignees: ['atsushifx']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your question!
+        Please provide as much detail as possible 🙏
+
+  - type: dropdown
+    id: question-type
+    attributes:
+      label: 🏷 Question Type
+      description: What kind of question is this?
+      options:
+        - Usage / How-to
+        - Specification / Behavior
+        - Configuration / Setup
+        - Best Practices
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ❓ Your Question
+      description: What would you like to know?
+      placeholder: 'How do I configure textlint for my own dictionary?'
+
+  - type: textarea
+    attributes:
+      label: 🔍 What have you tried?
+      description: Steps or research you've already done (optional but helpful).
+      placeholder: 'I read the CLAUDE.md and checked the configs/ directory...'
+
+  - type: input
+    attributes:
+      label: 💻 Environment (if relevant)
+      description: OS, Node.js version, etc.
+      placeholder: 'Windows 11 / Node.js v18.17 / pnpm 8.9'
+
+  - type: textarea
+    attributes:
+      label: 📎 Additional context
+      description: Related documentation, screenshots, or other helpful information.
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        🤖 This project is supported by AI agents: **Elpha**, **Kobeni**, and **Tsumugi**.
