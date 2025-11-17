@@ -38,10 +38,10 @@ $~*
 ## AI generated files
 
 ## Coding AI depended
-CLAUDE.md
 .claude/*
 !.claude/agents/
 !.claude/agents/*
+!CLAUDE.md
 
 # MCP server dependency files
 .serena/
