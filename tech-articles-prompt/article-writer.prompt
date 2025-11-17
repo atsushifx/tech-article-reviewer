@@ -139,28 +139,36 @@
 
 :theme  : 記事に書く内容の簡単な説明
 
-- WSL 2 上の Debian を使うための基礎的な知識の説明
-- WSL 2 上の Debian を使うための基本的な操作の説明
+- GitHub Workflows を reuseable workflowを使って、効率的に管理する方法
+
 
 """"
 
 :target : 対象読者
 
-- WSL 2を初めて使う初心者プログラマー
-- WSL 2で開発環境を構築したい中級プログラマー
+- GitHub Workflowsを導入しているITエンジニア
+- GitHub Actionsの初心者
 
 """"
 
 :goal   : 記事が読者に達成してほしい目標
 
-- WSL 上のDebianで基本的なファイルの編集ができること
+- reuseable workflowの使い方を知り、自身のCI/CD環境でreuseable workflowを使えるようにする
 
 """"
 
 :link   : 記事の参考資料となるWebサイトへのリンク
 
+- ワークフローを再利用する: <https://docs.github.com/ja/actions/how-tos/reuse-automations/reuse-workflows>
+  GitHub 公式ドキュメントによる reusable workflowの作成方法
+- atsushifx .github: <https://github.com/atsushifx/.github/>:
+  reuseable workflowを使った例、GitHub Actionsの静的解析などを実装している
+
 """"
 
 :remark  : その他の指示
+
+- :link を参照して、事例、サンプルを使った分かりやすい記事を書く
+- mermaid.js,ascii図などを使用したビジュアルな記事を書く
 
 """"
