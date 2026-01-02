@@ -7,23 +7,23 @@
 # https://opensource.org/licenses/MIT
 
 
-##		General
-#	OS specific files
+##  General
+#   OS specific files
 .DS_Store
 thumbs.db
 
-#	logs, patches
+#   logs, patches
 *.log
 *.diff
 *.patch
 
-# 	history, cache
+#   history, cache
 .history/
 .cache/
 **/*cache
 
 
-#	backup/swap/temp
+#   backup/swap/temp
 $~*
 ~*
 *~
@@ -31,17 +31,18 @@ $~*
 *swp
 *lock
 
-#	.env files
+# .env files
 .env*
 .env.*
 
 ## AI generated files
 
 ## Coding AI depended
+# SDD (Spec-Driven Development) files
+**/.cc-sdd/
+
+# CLAUDE.md
 .claude/*
-!.claude/agents/
-!.claude/agents/*
-!CLAUDE.md
 
 # MCP server dependency files
 .serena/
@@ -52,8 +53,8 @@ temp/
 tmp/
 
 
-##		Editor
-#	VSCode
+##  Editor
+#   VSCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -62,5 +63,5 @@ tmp/
 !.vscode/*.code-snippets
 !.vscode/cspell*
 
-## Node_Module
+## Node
 node_modules/

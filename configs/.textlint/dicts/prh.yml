@@ -1,4 +1,4 @@
-## @(#) : textlint prh dictionary / atsushifx's add-on
+## @(#) : textlint prh dictionary
 #
 # @version 1.0.0
 # @author  Furukawa, Atsushi <atsushifx@gmail.com>
@@ -11,5 +11,8 @@
 #
 #<<
 
-## dict start
-rules:
+version: 1
+#
+imports:
+  ## smarthr proofreading dictionary
+  ## atsushifx's add-on
