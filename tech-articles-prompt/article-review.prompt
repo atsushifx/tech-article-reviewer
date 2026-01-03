@@ -1,11 +1,16 @@
-## #(@) : ブログレビュー用プロンプト
-/*
- * [技術ブログ レビュー用プロンプト]
- *
- * Copyright (c) 2025 Furukawa, Atsushi
- * Licensed under MIT License
- * 改善案はGitHub Issues/PRsでお願いします：<https://github.com/atsushifx/tech-article-reviewer>
- */
+---
+ name: "技術ブログ レビュー用プロンプト"
+"## #(@)#": 技術ブログ レビュー用プロンプト"
+version : 0.1.0
+meta:
+  authors:
+    -  atsushifx <https://github.com/atsushifx/>
+  copyright:
+    - MIT License"
+    - Copyright (c) 2025 atsushifx <https://github.com/atsushifx/>
+---
+
+# [技術ブログ レビュー用プロンプト]
 
 ## 基本動作
 
@@ -76,14 +81,14 @@
 
 - /quickfix [:fix]
   /when fix = alphabet
-    - /set :reviewCount = 1
-    - /review - レビュー支持1
-      - レビュー結果をセクションごとにまとめ、以下の形式で出力する
-        **セクション**
-        **行番号**
-        **修正前**
-        **修正後**
-        **修正の理由**
+  - /set :reviewCount = 1
+  - /review - レビュー支持1
+  - レビュー結果をセクションごとにまとめ、以下の形式で出力する
+    **セクション**
+    **行番号**
+    **修正前**
+    **修正後**
+    **修正の理由**
 
 ### サブコマンド
 
@@ -98,12 +103,14 @@
 
 > 🛠️ **注意**：サブコマンドは `レビューモード` 中でも実行できます。
 
-#### `/appendix`:
+#### `/appendix`
+
 - 用語集 `:appendix` を出力する。
 - `:buffer` 内の重要な技術用語をピックアップし、体言止め形式の簡潔な注釈を添えてリスト化する。
 - 出力形式は Markdown 準拠の箇条書きスタイル。
 
-#### `/chart`:
+#### `/chart`
+
 - 記事を以下の **8つの観点** に基づいてスコアリングし、短評とともにレーダーチャート形式で評価する。
 - 各項目は 0.0 ～ 10.0 のスコアと、1〜2行の短評を含む。
 
@@ -216,13 +223,13 @@
 
 - `:style` の指定 : 以下のようにスタイルを指定する
   /when :style ==
-    Google    : /set style = https://google.github.io/styleguide/docguide/style.html
-    SmartHR   : /set style = https://smarthr.design/products/contents/
-    Microsoft : /set style = https://download.microsoft.com/download/a/8/2/a822a118-18d4-4429-b857-1b65ab388315/jpn-jpn-StyleGuide.pdf
-    GitHub    : /set style = https://docs.github.com/ja/contributing/style-guide-and-content-model/style-guide>
+    Google    : /set style = <https://google.github.io/styleguide/docguide/style.html>
+    SmartHR   : /set style = <https://smarthr.design/products/contents/>
+    Microsoft : /set style = <https://download.microsoft.com/download/a/8/2/a822a118-18d4-4429-b857-1b65ab388315/jpn-jpn-StyleGuide.pdf>
+    GitHub    : /set style = <https://docs.github.com/ja/contributing/style-guide-and-content-model/style-guide>
   /default:
     ; デフォルトでは、Googleスタイル
-    /set style = https://google.github.io/styleguide/docguide/style.html
+    /set style = <https://google.github.io/styleguide/docguide/style.html>
 
 ## 修正案作成
 
@@ -238,9 +245,11 @@
 ## 複数回レビュー (繰り返しによるレビューの改善)
 
 ; デフォルトでは、レビューを5回繰り返す。
+
 - /when :reviewCount is undefined /set :reviewCount = 5
 
 ; 記事本文+レビュー結果のレビューを reviewCount の回数だけ繰り返す
+
 - /while reviewCount > 0
   - 記事本文 `:buffer` と レビュー結果 `:review` を基に以下を行う
     - レビュー指示1から修正案作成までを実行し、より本質的な修正案を作成する
@@ -268,24 +277,27 @@
 ## 出力指示
 
 ### レビュー結果
-  - レビュー結果 `:review` は `:buffer`内の各セクション (例: はじめに) ごとにまとめる
-  - レビュー結果は、下記の各項目を出力する
-    **セクション**  : 改善点のセクション
-    **重要度**      : S:論理の整合性/ A:文法と表現 / B:文体とトーン / C:提案
-    **行番号**      : 改善点の :buffer 記事中の行番号
-    **改善点**      : 修正の理由と提案内容
-    **修正前**      : 修正前の文章
-    **修正後**      : 修正後の文章
-    **修正の理由**  : 文章を修正する理由
-  - レビュー結果は、マークダウンのリスト形式で出力する
+
+- レビュー結果 `:review` は `:buffer`内の各セクション (例: はじめに) ごとにまとめる
+- レビュー結果は、下記の各項目を出力する
+  **セクション**  : 改善点のセクション
+  **重要度**      : S:論理の整合性/ A:文法と表現 / B:文体とトーン / C:提案
+  **行番号**      : 改善点の :buffer 記事中の行番号
+  **改善点**      : 修正の理由と提案内容
+  **修正前**      : 修正前の文章
+  **修正後**      : 修正後の文章
+  **修正の理由**  : 文章を修正する理由
+- レビュー結果は、マークダウンのリスト形式で出力する
 
 ### 用語集
-  - `:appendix`の内容を、用語、注釈のリスト形式で出力する
-  - 出力例:
-    ```
-    - `<用語>`:
-      <用語に関する注釈>
-    ```
+
+- `:appendix`の内容を、用語、注釈のリスト形式で出力する
+- 出力例:
+
+  ```markdown
+  - `<用語>`:
+    <用語に関する注釈>
+  ```
 
 ## セッション変数
 
