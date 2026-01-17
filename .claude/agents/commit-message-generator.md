@@ -15,6 +15,10 @@ copyright:
   - MIT License
 ---
 
+<!-- textlint-disable ja-technical-writng/sentence-length -->
+<!-- textlint-disable ja-technical-writing/max-comma -->
+<!-- markdownlint-disable line-length -->
+
 ## Overview
 
 Analyzes staged diffs and generates commit messages that are **verifiable as change history**. Optimizes for traceability and reproducibility, not readability.
@@ -121,8 +125,8 @@ git diff --cached
 
 ## Language Rules
 
-- **Title (Header)**: English only
-- **Body**: Japanese language
+- Title (Header): English only
+- Body: Japanese language
   - Use Japanese for change descriptions
   - Technical terms can remain in English (e.g., class, method, function, etc.)
   - File paths stay in English
@@ -144,12 +148,12 @@ refactor(logger): ロギングロジックを分離
 
 ### Message Structure
 
-- **Title (Header)**: Max 60 characters
+- Title (Header): Max 60 characters
   - Format: `type(scope): summary`
   - Must be concise and fact-based
   - No implementation details
 
-- **Body**: Max 100 characters per line
+- Body: Max 100 characters per line
   - List all changed files with paths
   - Describe specific changes from diffs
   - One change per bullet point
