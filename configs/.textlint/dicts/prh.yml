@@ -1,18 +1,16 @@
-## @(#) : textlint prh dictionary
+# src: templates/.textlint/dict/prh-my-settings.yml
+#  @(#) : textlint prh dictionary
 #
-# @version 1.0.0
-# @author  Furukawa, Atsushi <atsushifx@gmail.com>
-# @date    2025-01-31
-# @license MIT
+# Copyright (c) 2025 atsushifx <http://github.com/atsushifx>
 #
-# @desc<<
-#
-# textlint prh base dictionary
-#
-#<<
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
 
-version: 1
-#
-imports:
-  ## smarthr proofreading dictionary
-  ## atsushifx's add-on
+## dict start
+rules:
+# - expected: 修正後の表現
+#   pattern: 修正対象（正規表現も可）
+#   specs:
+#     - from: 誤り
+#       to:   正しい表現
+## end of dict
