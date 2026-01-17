@@ -20,11 +20,13 @@ pre-commit:
         --secretlintignore .gitignore
         --maskSecrets
         "{staged_files}"
+      skip:
+        - empty
 
 prepare-commit-msg:
   commands:
     prepare-message-script:
-      run: bash -c './scripts/prepare-commit-msg.sh --git-buffer'
+      run: bash -c './scripts/prepare-commit-msg.sh --model gpt-5.2 --git-buffer'
 
 # check commit message as Conventional Commit
 commit-msg:
