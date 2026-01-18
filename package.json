@@ -1,9 +1,10 @@
 {
-  "name": "tech-article-reviewer-root",
+  "name": "tech-article-reviewer",
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "lefthook install",
+    "prepare": "bash ./scripts/prepare.sh",
+    "format:prompts": "bash ./scripts/prompt-formatter.sh",
     "check:spells": "pnpm exec cspell  --config .vscode/cspell.json --cache --cache-location .cache/cspell/cSpellCache",
     "lint:text": "textlint --config ./configs/textlintrc.yaml --cache --cache-location .cache/textlint-cache/textlintCache ",
     "lint:markdown": "markdownlint-cli2 --config ./configs/.markdownlint.yaml ",
