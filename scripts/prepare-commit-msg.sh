@@ -369,7 +369,8 @@ generate_commit_message() {
   local extracted_msg
   extracted_msg=$(echo "$after_diff" | \
     sed -n '/^=== commit header ===/,/^=== commit footer ===/p' | \
-    sed '1d;$d')
+    sed '1d;$d' | \
+    sed '1{/^```text$/d}; ${/^```$/d}')
 
   # Validate extracted message is not empty
   if [[ -z "$extracted_msg" ]]; then

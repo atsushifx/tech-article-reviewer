@@ -1,12 +1,35 @@
 # project.dic: dictionary for tech-article-revieer
+<<<<<<< HEAD
+CLEARBY
+||||||| parent of d8cb716 (config(cspell): update project dictionary terms)
+=======
+AOP
+CLEARBY
+COBOL
+>>>>>>> d8cb716 (config(cspell): update project dictionary terms)
 commitlint
-deckrd
+DQUOTE
 eslintcache
 Fastly
 japanese
+LCL
 lefthook
+LLM
+<<<<<<< HEAD
+longpaths
+reviewcount
+rumdl
+smarthr
+stylelintcache
+||||||| parent of d8cb716 (config(cspell): update project dictionary terms)
 longpaths
 reviewcount
 smarthr
 stylelintcache
+=======
+Qiita
+Quora
+reentrancy
+VCHAR
+>>>>>>> d8cb716 (config(cspell): update project dictionary terms)
 zenn
