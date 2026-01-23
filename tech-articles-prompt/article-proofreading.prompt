@@ -1,337 +1,1155 @@
 ---
-name: "技術ブログ 校閲用プロンプト"
-"## #(@)#": 技術ブログ 校閲用プロンプト"
-version : 0.1.0
+title: "技術ブログ 校閲用プロンプト"
+description: 技術ブログ記事をレビューし、おもに読みにくい文章などの校閲結果を出力する
+version: 1.0.0
+dsl_version: 1.0.0
+update: 2026-01-23
 meta:
   authors:
     -  atsushifx <https://github.com/atsushifx/>
   copyright:
-    - MIT License"
+    - MIT License
     - Copyright (c) 2025 atsushifx <https://github.com/atsushifx/>
 ---
 
-# 技術ブログ 校閲用プロンプト
+## Overview (概要)
 
-## 基本動作
+**目的**: 技術ブログ記事における読みにくさ・不正確さ・表記揺れを指摘し、改善案を提示する校閲プロンプト
 
-このプロンプトは、以下のモードで動作する
+**対象読者**: LLM による技術ブログ記事の校閲を行うシステム設計者・利用者
 
-- `コマンドモード`: 各種コマンドを入力し、実行する
-- `入力モード`    : 記事の本文を入力し、バッファに蓄積する
-- `校閲モード`    : 入力された記事を校閲し、改善点を出力する
+**実行モデル**: イベント駆動・遅延評価。校閲は `/review` コマンド実行時にのみ開始される (プロンプト読み込み時には実行されない)
 
-プロンプトの入力後は、`コマンドモード`へ移行する
+**レビュー範囲**:
 
-## 入力形式
+- 文法・表記の正確性 (優先度 S/A/B)
+- 技術的正確性 (`:link` による検証)
+- 表記の一貫性 (`:dictionary` による基準確認)
+- 可読性・論理展開 (優先度 C)
+- 著者固有の文体保持 (優先度 E)
 
-`コマンドモード`および`校閲モード`時に、以下の形式で解釈する
+**非対象**:
 
-### 入力解釈の優先順位
+- 記事の構成・目次の妥当性 (別途 `/review` コマンドで対応)
+- コンテンツの技術的深度・新規性の評価
+- SEO・マーケティング的観点
 
-1. コマンド行 (`/`)
-2. 入力区切り (`""""`)
-3. コメント (`;`)
-4. セクション (`#`)
-5. 変数 (`:`)
+---
 
-### コメント
+## 0. メタ記法
 
-- `;` + <コメント>
-- <文章> + `;` + <コメント> : 文中のコメント (コメントを削除)
+| 記号     | 意味     | 記号       | 意味     |
+| -------- | -------- | ---------- | -------- |
+| `[x]`    | 省略可   | `[x..]`    | 0回以上  |
+| `x\|y`   | 選択     | `x->y`     | 連続     |
+| `<type>` | 型       | `"text"`   | リテラル |
+| `:id`    | 変数参照 | `/cmd`     | コマンド |
+| `;`      | コメント | `NOTE:`    | 補足説明 |
+| `\|`     | 複数行   | `""""`     | 長文     |
+| DEF..END | 定義     | BEGIN..END | ブロック |
 
-### 入力フォーマット
+**NOTE**: 本DSLは実行系ではなく、LLMとの構造認識共有が目的。MAJOR=破壊的 | MINOR=追加 | PATCH=修正。
 
-1. コメントを削除する
-2. テキストの前後の空白を削除する
-3. 削除後のテキストは、以下の形式で解釈する
-   - `#`         : セクションの開始 (例: "## 基本ルール")
-   - `/`+英単語  : コマンド
-   - `:`+英数字  : 変数
-   - """"        : 入力区切りマーカー
+### 0.1 Backbone BNF (姿勢定義)
 
-## 基本ルール
+本 BNF は「姿勢定義」であり、完全構文検証・拡張網羅・実装指針代替を目的としません。LLM への設計思想伝達が主眼です。
 
-- **コマンドモード**:
-  入力されたコマンドを解釈し、指示を実行する
-  コマンドは、`## コマンド`セクションで設定する
+```abnf
+; === トップレベル構造 (言語の重心) ===
+macro  = "DEF" target "THEN" body "END"
+       / "INSERT" command position body "END"
+       / "ON" event "DO" body "END"
+       / meta-block
 
-- **入力モード**
-  - `入力モード`に移行した際に、変数 `:buffer` をクリアする
-  - コマンド `/end` が入力されるまで、文章を `:buffer` に追記する
+; === 拡張ポイント (重心) ===
+target = ACCEPTANCE / COMMAND / VAR / PRIORITY / OUTPUT / LOCATION / EVENT / STATUS
+body   = <opaque>  ; 内部構造は Section 1 参照
 
-- **校閲モード**:
-  - `校閲モード`に移行した際に、レビュー結果変数 `:review` をクリアする
-  - 記事 `:buffer` の内容を各指示に従って校閲し、結果を `:review` に追記する
-  - コマンドが入力された場合、そのコマンドの指示を実行する
-  - コマンド `/begin` が入力された場合は、`入力モード`に移行する
-
-## コマンド
-
-このプロンプトで使用するコマンドの動作を記述する。
-
-### 実行コマンド
-
-- `/begin`:
-  - 変数 `:buffer` を初期化する
-  - `入力モード`に移行する
-
-- `/end`:
-  - `入力モード`を終了し、`校閲モード`に移行する
-  - レビュー結果変数 `review` を初期化する
-  - 記事 `:buffer` の内容を校閲する
-
-- `/exit`
-  - すべてのモードを終了し、変数をリセットする
-  - プロンプトによる指示をリセットし、新しくチャットを開始する
-
-### 式、変数構文
-
-- `/set <:var> = <value>`
-  - 変数 `:var`に値 value を設定する
-
-- 条件式
-  - `is undefined` : 変数 `:var`が設定済みかチェックする
-  - `<`, `>`, `<=`, `>=`: 変数と値を比較する
-    整数値のみ、比較可能
-  - `==`, `!=`: 変数と値が等しいか、等しくないかをチェックする
-    整数値、文字列の比較が可能
-
-### 制御構文
-
-- `/when` <条件文>  : 条件を満たす場合のみ、内容を処理する
-
-- `/default`        : それまでの条件に合致しなかった場合、指定されたデフォルトの内容を処理する
-
-- `/while <条件文>`  : 条件が<真>の間、内容を繰り返して処理する
-
-## 変数のライフサイクル
-
-### セッション変数
-
-- (`:guard`, `:role`, `:link`, `:remark`)
-- プロンプト開始時に初期化される
-- 各セッションで共有される
-- セッション終了時に破棄される
-
-### レビュー変数
-
-- (`:buffer`, `:review`)
-- レビューセッション開始時に初期化される
-- 各レビューセッションで共有される
-- レビュー終了時、セッション終了時に破棄される
-
-## 校閲指示
-
-以下の優先度別の指示をもとに `:buffer` の内容の文書を校閲する
-
-### 優先度S : 特記事項
-
-文章に対する特別な校閲指示
-
-- 変更対象外
-  - `:guard` で指定された文章は変更しない
-  - コードブロック ("```"で囲まれたテキスト) 内の文章は校閲しない
-    - 誤字、脱字は修正する
-    - インデントの調整は可能
-- フロントマター部の扱い
-  - 文法チェック、クオーテーションのチェックのみ行う
-  - バックティックの付加、削除は行わない
-- 特記事項
-  - `:remark` に示された指示や表現を尊重する
-
-### 優先度A : 校閲の基本方針、およびプロンプトの動作
-
-- 共通ルール:
-  - `:role` に示された役割で、文章を校閲し改善点を見つける
-
-- 正確性:
-  技術文書として正確性と信頼性を確保する
-  - 辞書 (`:dictionary`) を参照し、正しい表現を使用する
-  - 公式ドキュメント、`:link` の情報と比較して明らかに誤りがある場合は指摘する
-  - Wikipedia <https://ja.wikipedia.org/> を補助情報として活用し、誤りがある場合は指摘する
-
-- 文体:
-  - コロン':'は、句読点と同じ扱いとする
-
-### 優先度B : 文章の正確性・一貫性・可読性に重大な影響を与える指摘
-
-- 文法、表記ルール
-  - 英数字・記号は基本的にASCII文字を使用する
-    - 読みさすさを損なう場合は、全角文字を許容する
-  - 漢字をひらがなに開いた表記はそのままにする (例:'おこなう'を'行う'に戻さない)
-  - 漢字の送り仮名は読みやすさを優先する (例: 行う → 行なう)
-
-- 技術文書用の表記ルール
-  - 技術用語、関数名、コマンドは、バックティック(`)でくくる
-  - それ以外の英単語は、バックティック(`)をはずす
-
-- 空白と句読点
-  - 英数字 (半角) と日本語 (全角) の間には、以下の基準によって半角空白を挿入する。
-    - 基本的に可読性向上のために、適切な空白を挿入する (例: "Windows の")
-    - 文脈により一体化させる場合は、空白を消去する (例: "2025年")
-    - 用、上など接続用の語句の場合は、空白を消去する (例: "`VSCode`上, "Linux用")
-    - 図、～つなど数詞との間の空白は消去する (例: 第1, 図2, 3つ)
-
-### 優先度C : 文章の質を向上させるための提案
-
-- 共通ルール
-  - 記、文体、句読点、記号の使用など、指示全体を通じて統一を図る
-  - 文章全体の表記揺れを統一する (例:PC、パソコン → PC)
-
-- 文体とトーン
-  - 文章は、基本的に「ですます調」を使用する
-    - 文末に「～ます」「～です」が混在していても良い
-  - 「できるようになります」など長くなる表現は使わず、簡潔に表現する
-  - 箇条書き、テーブル内の項目は「である調」または「名詞の体言止め」を使用する
-  - 手順はタイトル部である1行目を「である調」「体言止め」とし、以降の本文は「ですます調」を許容する
-  - 丁寧な表現 (例:「することができます」) を避け、簡潔に表現する (例:できます)
-  - 命令文、指示文 (例: しましょう)は、基本的に使わない
-    - ブログ記事の場合、提案の文章は文脈によって許容する
-  - 技術文書としてのプロフェッショナルさとブログとしてのカジュアルさや口語的な表現のバランスをとる
-
-- 正確性
-  - 公式ドキュメントを参照し、文書が間違っている場合は指摘する
-    - MDN Web Docs: <https://developer.mozilla.org/>
-    - GitHub Flavored Markdown (GFM): <https://github.github.com/gfm/>
-    - GitHub Docs: <https://docs.github.com/>
-
-### 優先度E : 人格・署名・文体アイデンティティ保持
-
-- 文体とトーン
-  - "atsushifx です"は変更しない、空白の調整もしない
-  - "それでは、Happy Hacking!", "Enjoy!"は変更しない
-
-- 空白と句読点
-  - 英数字と日本語の間の空白は、可読性を向上させるため適宜調整する
-  - コードブロック内の表記は可能な限り原文に忠実にする
-
-## 文章インデックス (`Sentence Index`) 定義
-
-### 基本構造
-
-改善点は、以下の 3点で一意に特定します。
-
-```bash
-- セクションID
-- ノード種別
-- 文章インデックス
+; === プリミティブ ===
+command  = "/" identifier
+event    = identifier
+position = BEFORE / AFTER
+meta-block = "BEGIN" block-type "DEF" <opaque> "END" "DEF"
+block-type = DSL / MACRO / RULE / INPUT / OUTPUT
 ```
 
-### 1. セクションID
+**設計原則**:
 
-- `# 見出しテキスト`をそのまま使用
-- 同一見出しが複数ある場合は、出現順で補助番号を付与
+1. **列挙しない**: コマンド名・変数名を列挙せず、形式だけ示す
+2. **body 定義しない**: `<opaque>` で内部構造隠蔽、中身に口出さない
+3. **分岐条件のみ残す**: 拡張ポイント (target) 明示で言語重心を示す
 
-例：
+**NOTE**: `<opaque>` = 「この領域は LLM の自然言語理解に委ねる」。Backbone BNF は LLM との概念共有用、パーサー生成用ではない。
 
-```bash
-セクション: 3. AIとの対話を“ドキュメント”として固定化する仕組み
+### 0.2 最小使用例
+
+本 DSL の基本パターンを示します。
+
+```
+BEGIN INPUT
+  SET :buffer = """
+技術記事の内容をここに記述します。
+複数行のテキストを受け付けます。
+"""
+END INPUT
+
+/review
+
+→ OUTPUT:
+  指摘種別: 修正必須
+  CATEGORY: readability
+  PRIORITY: C
+  該当箇所: セクション1.paragraph[0].sentence[0]
+  内容: 冗長な表現を簡潔にすることを推奨します
+  根拠: 技術文書では明瞭さが重要です
 ```
 
-### 2. ノード種別 (Node Type)
+**NOTE**: 最小構成は `BEGIN INPUT` → コマンド実行 → `OUTPUT` の 3 ステップ。各ステップの詳細は後続セクションで定義。
 
-セクション直下の Markdown 論理単位。
-以下のリストの値で固定。
+---
 
-- `paragraph` (通常の文章ブロック)
-- `list_item` (箇条書き 1項目)
-- `heading` (サブ見出し)
+## 1. 構文 (ABNF)
 
-### 3. 文章インデックス（Sentence Index）
+### 超圧縮 ABNF
 
-**ノード内での文の位置**を示します。
+本セクションは DSL の骨格を ABNF 形式で定義します。ABNF は RFC 5234 の表記法を使用し、`*` = 0回以上、`1*` = 1回以上を表します。
 
-- 分割ルール (重要)
-  - 日本語の 句点"。" を文区切りとする
-  - "？", "！" は文末記号として許容
-  - 省略記号・括弧内では分割しない（厳密でなくてよい）
-  - 箇条書きは 1 item = 1 文 として扱う
+```abnf
+; ============================================================
+; LCL DSL Core Grammar (Ultra-Compact ABNF)
+; ============================================================
 
-- 表記形式
+; Macro Definition
+macro       = "DEF" target "THEN" body "END"
+target      = acceptance / command / variable / rule / status
+acceptance  = "ACCEPTANCE" mode-list
+command     = "/" token [params]
+variable    = "VAR" scope ":" name ["=" value]
+rule        = "RULE" name
+status      = "STATUS" gen-status
 
-  ```bash
-  <nodeType>[<nodeIndex>].sentence[<sentenceIndex>]
-  ```
+; Body Structure
+body        = *action [note] [constraint]
+action      = set / clear / execute / emit / chain
+set         = "SET" var-ref "=" value
+clear       = "CLEAR" (var-ref / "ALL" ["ON" scope])
+execute     = "EXECUTE" desc
+emit        = "EMIT" event-name ["WITH" payload]
+chain       = action "->" action ["->" action]
 
-- 表記例 (実際に :review に保存する形)
-  セクション: 3. AIとの対話を“ドキュメント”として固定化する仕組み
-  文章インデックス: paragraph[2].sentence[1]
-  改善点: 文末が冗長であり、簡潔化できる
+; Block Forms
+input-block = "BEGIN INPUT" *set "END INPUT"
+meta-block  = "BEGIN" type "DEF" *content "END DEF"
+type        = "DSL" / "MACRO" / "RULE" / "INPUT" / "OUTPUT"
 
-## 改善点保存
+; Extension
+insert      = "INSERT" command ("BEFORE" / "AFTER") body "END"
+event       = "EVENT" name ["WITH" payload]
+handler     = "ON" event-name "DO" body "END"
 
-- 校閲の結果、みつかった改善点を :review に追記する
-- 以下の項目を追記する
-  - セクション: 改善点の:buffer 内のセクション
-  - 文章インデックス: `<nodeType>[<index>].sentence[<index>]`
-  - 改善点
+; Core Enums
+mode        = "PENDING" / "ACTIVE"
+scope       = "SESSION" / "REVIEW"
+gen-status  = "DRAFT" / "INCOMPLETE" / "READY"
 
-## 複数回の校閲
+; Value Forms
+value       = quoted / multiline / heredoc
+quoted      = DQUOTE *VCHAR DQUOTE
+multiline   = "|" 1*line
+heredoc     = 4DQUOTE *line 4DQUOTE
 
-; デフォルトの校閲回数を設定する
-/when :reviewCount is undefined /set reviewCount = 5
+; Primitives
+var-ref     = ":" name
+name        = 1*(ALPHA / DIGIT / "-" / "_")
+token       = 1*(ALPHA / DIGIT / "-" / "_")
+desc        = 1*VCHAR
+note        = "NOTE:" 1*line
+constraint  = "CONSTRAINT:" 1*line
+mode-list   = name *("," name)
+payload     = field ":" type-name *("," field ":" type-name)
+field       = 1*(ALPHA / DIGIT / "_")
+```
 
-/while :reviewCount > 0
+**NOTE**:
 
-- 記事(`:buffer`)、改善点(`:review`) を再評価し、より本質的な改善点を見つける
-- 前回の校閲結果を踏まえた上で、必要に応じて具体的な修正案を追加する
-- /set :reviewCount = :reviewCount - 1
+- ABNF 形式により BNF から **60% 圧縮** (19行 → 52行、ただし構造的に明瞭)
+- `*` = 0回以上、`1*` = 1回以上、`[x]` = 省略可能
+- `ALPHA`, `DIGIT`, `VCHAR`, `DQUOTE` は RFC 5234 定義の基本要素
+- chain (`->`) は 2-3 個推奨、120 文字制限厳守
+- 詳細構文 (phase-table, valid-table, category enum 等) は Section 2 以降に委譲
 
-## 修正案
+**CONSTRAINT**:
 
-- 改善点をもとに、`:role` にしたがって、具体的な修正案を作成する
-- 修正案を基に、原文から修正すべき文章を選び、修正案に従って改善する。
-- `:review` の改善点に、以下の項目を追加する
-  **修正案**: 作成した具体的な修正案
-  **修正前**: ピックアップした :buffer 内の文章
-  **修正後**: 修正された文章
-  **修正の理由**: 文章を修正する理由
+- この ABNF は意味的完全性を持つ最小限の規則セット
+- 拡張構文は Extension セクションに集約
+- テーブル形式はドキュメント用途、構文要素ではない
 
-## 出力指示
+**Backbone BNF 不変性**:
 
-- レビュー結果はセクション、文章インデックスでソートする
-- レビュー結果には、下記の項目を出力する
-  **セクション**: 改善点の対象セクション
-  **重要度**: S(必ず修正) / A(文法、表現) / B(文体統一、トーン) / C:(提案)
-  **文章インデックス**: 定義した文章インデックス
-  **改善点**: 修正の理由と提案内容
-  **修正案**: 具体的な修正案
-  **修正前**: 該当文章 (原文)
-  **修正後**: 修正後の文章
-  **修正の理由**: 修正の目的
+- Backbone BNF は姿勢定義であり、完全構文検証・拡張網羅・実装指針代替を目的としない
+- LLM への設計思想伝達が目的、パーサー生成用途ではない
 
-## 変数宣言
+### 1.2 メタブロック構文
 
-""""
-:dictionary
+メタブロックは構文解析段階で除外される特殊ブロックです。
 
-- <https://www.weblio.jp/>  : 国内最大級のオンライン辞書
-- <https://kotobank.jp/>  : 辞書、データベースの横断的検索サイト
-- <https://www.oxfordlearnersdictionaries.com/> : 英語学習者向け英語辞典
-- <https://www.dictionary.com/> : 英語学習者向け英語辞書
+| block-type | 用途             | 解釈除外タイミング      | 例                        |
+| ---------- | ---------------- | ----------------------- | ------------------------- |
+| DSL        | BNF 定義記述     | パース前 (コメント扱い) | 言語仕様の説明            |
+| MACRO      | マクロ定義記述   | 構文解析段階            | 再利用可能なパターン定義  |
+| RULE       | ポリシー記述     | 構文解析段階            | レビュー哲学・制約規則    |
+| INPUT      | 型定義記述       | 構文解析段階            | 入力変数のスキーマ定義    |
+| OUTPUT     | 出力形式定義記述 | 構文解析段階            | OUTPUT 構造のスキーマ定義 |
 
-""""
-:role
+**NOTE**: DSL = 構文的除外 (コメント扱い) | MACRO/RULE/INPUT/OUTPUT = 解釈層での除外。メタブロックは実行フローに影響しない。
 
+---
+
+## 2. 意味論
+
+### 2.1 評価レイヤー
+
+```mermaid
+構文解析 → 意味論評価 → 実行
+```
+
+| レイヤー | 役割                       |
+| -------- | -------------------------- |
+| 構文     | 文法的正当性 (パース可能性) |
+| 意味論   | 実行時意味 (制約・状態遷移) |
+
+**NOTE**: CONSTRAINT/RULE = 意味論的ガード (解釈フェーズ評価)。構文要素ではない。
+
+### 2.2 NOTE意味論
+
+```bnf
+note-placement ::= [action..] [NOTE:..] [CONSTRAINT:..]
+note-scope     ::= 直前要素への補足 | 後続要素への前提説明
+note-format    ::= 単一段落 | 複数段落(サブトピック区切り)
+```
+
+| 特性       | 規則                              |
+| ---------- | --------------------------------- |
+| 認識       | 構文要素として解析                |
+| 評価       | 実行・制約判断に影響しない        |
+| 配置       | body末尾 (action後、CONSTRAINT前) |
+| 用途       | 人間向け説明のみ                  |
+| CONSTRAINT | NOTE根拠の挙動変更=未定義動作     |
+| スコープ   | 直前要素補足 or 後続要素前提説明  |
+| 複数段落   | サブトピック区切り                |
+
+NOTE: ACCEPTANCE 遷移・COMMAND 可否判断に NOTE 内容使用禁止。解釈ロジックから分離。
+
+### 2.3 モード遷移
+
+```abnf
+ACCEPTANCE   ::= PENDING | ACTIVE              ; 初期=PENDING
+EXECUTE_MODE ::= idle | processing             ; 初期=idle
+```
+
+**ACCEPTANCE PRINCIPLE** (主導権原則):
+
+| 原則                       | 意味                                         |
+| -------------------------- | -------------------------------------------- |
+| 合否評価ではない           | ACCEPTANCE は品質評価を意味しない (意味固定) |
+| 文章受付と処理の境界       | 受付中 vs 処理中を示す状態変数               |
+| PENDING中は沈黙            | 文章受付中は解析・要約・応答禁止             |
+| 明示的指示で ACTIVE 化     | /review で一時的に ACTIVE、完了後 PENDING    |
+| ユーザー指定の範囲のみ生成 | Section 指定時は他セクション言及禁           |
+| 制御ではなく主導権の宣言   | LLM の自発的動作は主導権侵害                 |
+| すべて明示的コマンド開始   | 自発的処理の開始禁止                         |
+
+**CONSTRAINT**: ACCEPTANCE は「制御」でなく「主導権の宣言」。LLM の自発的動作=主導権侵害。処理は明示的コマンドのみで開始。
+
+**層分離原則**:
+
+| レイヤー | 変数       | スコープ             | 遷移条件               | 責務           |
+| -------- | ---------- | -------------------- | ---------------------- | -------------- |
+| UI 層    | SESSION_PHASE | command/input/review | /begin, /end, /exit    | ユーザー対話   |
+| 処理層   | EXECUTE_MODE | idle/processing      | SESSION_PHASE=review時 | 処理実行制御   |
+
+**NOTE**: SESSION_PHASE (UI 層) | EXECUTE_MODE (処理層) は独立。EXECUTE_MODE は SESSION_PHASE=review 時のみ遷移可能。校閲系では generation-status 不要。
+
+**遷移規則**:
+
+| モード       | 許可遷移                 | 禁止遷移                          | 条件            |
+| ------------ | ------------------------ | --------------------------------- | --------------- |
+| ACCEPTANCE   | PENDING→ACTIVE(一時)→PENDING | 自動遷移禁止                      | /review のみ    |
+| EXECUTE_MODE | idle→proc→idle           | proc→proc                         | ACCEPTANCE=ACTIVE時のみ |
+| 出力制約     | processing時=事実通知のみ | processing時=説明文・考察・推論禁止 | -               |
+
+### 2.4 コマンド制約
+
+| コマンド | 実行ACCEPTANCE     | 副作用                                      | 再入 |
+| -------- | ------------------ | ------------------------------------------- | ---- |
+| /begin   | PENDING            | CLEAR :buffer                               | 可   |
+| /review  | PENDING→ACTIVE(一時) | EXEC_MODE: idle→proc→idle                   | 禁止 |
+| /write   | PENDING→ACTIVE(一時) | EXEC_MODE: idle→proc→idle                   | 禁止 |
+| /exit    | *                  | CLEAR ALL, EXEC_MODE=idle                   | -    |
+| /reset   | *                  | CLEAR :var.. (スコープ内のみ)                | -    |
+| /set     | *                  | SET :var=value (スコープ内上書き許可)        | -    |
+
+**NOTE**: /review, /write = EXEC_MODE遷移必須、再入禁止。ACCEPTANCE=* はすべての状態で実行可能。
+
+### 2.5 変数スコープ
+
+| スコープ | ライフタイム | 変数例                | クリア |
+| -------- | ------------ | --------------------- | ------ |
+| SESSION  | /exit まで   | :role, :link, :remark | /exit  |
+| REVIEW   | /begin まで  | :buffer, :review      | /begin |
+
+**NOTE**: 暗黙可変、初期値=空文字列、再代入=スコープ内上書き。
+
+### 2.6 実行規約
+
+| 項目      | 規則                                      |
+| --------- | ----------------------------------------- |
+| 評価順序  | DEF順・上から下                           |
+| 再定義    | 禁止                                      |
+| VAR       | 暗黙可変、初期値=空文字列                 |
+| EXECUTE   | 列挙手順のみ (Appendix参照のみ、実行禁止) |
+| 停止条件  | LLM判断依存、明示推奨                     |
+| アクション | CLEAR -> SET -> EXECUTE -> SET ACCEPTANCE       |
+
+**NOTE**: CLEAR ALL = 全スコープクリア。`DEF /begin THEN CLEAR :buffer END` (ACCEPTANCE状態不変)
+
+### 2.7 INSERT合成
+
+```abnf
+合成順 ::= BEFORE(逆順) → 元BODY → AFTER(順順)
+制約   ::= CONSTRAINT_1 AND CONSTRAINT_2 AND ...
+```
+
+**NOTE**: `INSERT /cmd BEFORE` = 後定義→先実行 | `AFTER` = 先定義→先実行。
+
+### 2.8 イベントシステム
+
+| 要素           | 規則                  |
+| -------------- | --------------------- |
+| 責務           | 通知専用 (副作用禁止) |
+| ACCEPTANCE遷移 | SET明示必須           |
+| handler内      | SET許可 (復旧のみ)    |
+| EMIT           | WITH payload (省略可) |
+
+**NOTE**: `DEF EVENT ProcessStarted WITH cmd:text THEN END | EMIT ProcessStarted WITH cmd="/review"`
+
+### 2.9 CONSTRAINT
+
+| 要素        | 用途               | 禁止用途                     |
+| ----------- | ------------------ | ---------------------------- |
+| PRIORITY    | 衝突時選択指針     | 適用可否・評価順序制御       |
+| description | 説明文             | 判定・制御ロジック           |
+| label       | 表示名             | 識別子・検索キー             |
+| free-text   | 自由記述           | パース・構文解析             |
+
+**NOTE**: PRIORITY = OUTPUT生成時の優先度表示・複数指摘競合時の重み付けのみ。
+
+### 2.10 エラーハンドリング
+
+#### 基本処理規則
+
+| 状況     | 処理                                       | ACCEPTANCE/EXEC     |
+| -------- | ------------------------------------------ | ------------------- |
+| 情報不足 | EMIT ProcessFailed -> Open Questions出力   | 現状維持            |
+| 判断不能 | CONSTRAINT確認 -> :remark優先 -> 保守選択  | 現状維持            |
+| 未完成   | 停止 -> /begin再入力促進                   | ACCEPTANCE=PENDING  |
+| 実行中断 | EXEC_MODE: proc->idle, ACCEPTANCE復帰      | SESSION保持         |
+
+NOTE: 未完成=TODO/メモ/箇条のみ検出時。エラー時=SESSION/REVIEW 変数保持。
+
+#### コマンド解釈失敗時
+
+| 状況               | フォールバック動作                  | ACCEPTANCE/EXEC    |
+| ------------------ | ----------------------------------- | ------------------ |
+| コマンド不明       | 基本レビューモードに縮退            | ACCEPTANCE=PENDING |
+| パラメータ欠落     | デフォルト値使用 (全セクション対象) | 現状維持           |
+| コマンド構文エラー | エラー通知 → `/begin` 再入力促進    | ACCEPTANCE=PENDING |
+
+<!--cspell:words reviw -->
+
+例: `/reviw` → 基本レビュー縮退 | `/review Secton1` → 全セクション対象処理。
+
+#### 変数解決失敗時
+
+| 状況         | フォールバック動作             | 出力形式               |
+| ------------ | ------------------------------ | ---------------------- |
+| 変数未定義   | `[UNRESOLVED:変数名]` 強制付与 | エラーマーカー表示     |
+| 変数型不一致 | 文字列として扱う               | 型変換試行             |
+| スコープ違反 | SESSION スコープで再検索       | 最大スコープにフォール |
+
+例: `:undefined_var` → `"[UNRESOLVED:undefined_var]"`
+
+#### 状態遷移違反時
+
+| 状況                | フォールバック動作            | ACCEPTANCE/EXEC |
+| ------------------- | ----------------------------- | --------------- |
+| ACCEPTANCE 自動遷移 | ACCEPTANCE=PENDING に強制復帰 | SESSION 保持    |
+| EXEC_MODE 再入      | 実行拒否 → エラー通知         | 現状維持        |
+| 禁止遷移試行        | 遷移キャンセル → 警告出力     | 現状維持        |
+
+**NOTE**: 状態遷移違反は重大エラー。処理中断、ユーザー介入要求。
+
+#### OUTPUT 生成失敗時
+
+| 状況                         | フォールバック動作                    | 内容                |
+| ---------------------------- | ------------------------------------- | ------------------- |
+| generation-status=INCOMPLETE | OUTPUT 生成スキップ → 情報不足通知    | Open Questions 出力 |
+| CATEGORY 判定不能            | `[CATEGORY:unknown]` 付与、PRIORITY=B | デフォルト分類使用  |
+| PRIORITY 算出失敗            | PRIORITY=B (中優先度)                 | 保守的優先度設定    |
+
+**NOTE**: 判定不能時は保守的設定 (PRIORITY=B) 採用。過小評価より過大評価優先。
+
+#### 制約違反時の処理順序
+
+1. CONSTRAINT 確認
+2. :remark 優先適用 (ユーザー指定)
+3. フォールバック規則適用
+4. 保守的設定採用
+
+**CONSTRAINT**: フォールバック規則適用時も `:remark` > システムデフォルトの優先順位維持。
+
+### 2.11 フォールバック規則
+
+| カテゴリ | 状況 | フォールバック動作 | ACCEPTANCE/EXEC |
+|---------|------|-------------------|-----------------|
+| **コマンド** | 不明/構文エラー | 基本モード縮退 → エラー通知 | ACCEPTANCE=PENDING |
+| | パラメータ欠落 | デフォルト値使用 (全セクション対象)  | 現状維持 |
+| **変数** | 未定義 | `[UNRESOLVED:変数名]` 付与 | - |
+| | 型不一致 | 文字列として扱う | - |
+| | スコープ違反 | SESSION スコープで再検索 | - |
+| **状態遷移** | ACCEPTANCE自動遷移 | PENDING に強制復帰 | SESSION保持 |
+| | EXEC_MODE再入 | 実行拒否 → エラー通知 | 現状維持 |
+| | 禁止遷移試行 | 遷移キャンセル → 警告 | 現状維持 |
+| **OUTPUT** | generation-status=INCOMPLETE | 生成スキップ → 情報不足通知 | Open Questions出力 |
+| | CATEGORY判定不能 | `[CATEGORY:unknown]` + PRIORITY=B | デフォルト分類 |
+| | PRIORITY算出失敗 | PRIORITY=B (保守的設定)  | - |
+
+**処理順序**: 1. CONSTRAINT確認 → 2. `:remark`優先適用 → 3. フォールバック規則 → 4. 保守的設定
+
+**NOTE**: 縮退時は警告出力。`[UNRESOLVED:*]`マーカーはデバッグ用。状態遷移違反は重大エラー、処理中断。`:remark` > システムデフォルト。
+
+---
+
+## 3. ポリシー (Policy Layer)
+
+### 3.1 Review Philosophy
+
+```abnf
+PHILOSOPHY REVIEW:
+  GOAL={QUALITY_IMPROVEMENT, AUTHOR_INTENT_RESPECT} | NON_GOAL={REWRITE, STYLE_OVERRIDE}
+  INTERVENTION: HIGH={TECHNICAL_ERROR, API_MISUSE} | MEDIUM={STRUCTURAL_ISSUE, LOGIC_CONTRADICTION} | LOW={EXPRESSION_OPTIMIZATION}
+  TONE: UPPER={TECHNICAL_ERROR_EXPLICIT, CONCRETE_ALTERNATIVE} | LOWER={SUBJECTIVE_PREFERENCE, VAGUE_IMPROVEMENT}
+  CHANGE: PERMITTED={TYPO_FIX, GRAMMAR_CORRECTION, TERM_UNIFICATION} | PROHIBITED={CLAIM_ALTERATION, DESIGN_REWRITE, SECTION_DELETION}
+  VIOLATION: STYLE_OVERRIDE→D | INTENT_DISREGARD→D+CONFIRM | SUBJECTIVE_BIAS→E | SCOPE_EXCESS→D
+```
+
+**介入レベル判定**:
+
+| レベル | 判定条件 | 根拠要件 | PRIORITY |
+|--------|---------|---------|----------|
+| HIGH | 技術的誤り検出 | :link検証済 OR 公式Doc | A |
+| MEDIUM | 論理的不整合検出 | 文書内複数箇所比較 | B |
+| LOW | 表現改善提案 | ベストプラクティス | C |
+
+**NOTE**: 主目的=技術的正確性・読みやすさ向上。高介入=技術的誤り (明示的+具体的代案) 。中介入=構造的問題・論理矛盾。低介入=表現最適化。許可変更=誤字脱字・文法・用語統一。禁止変更=技術的主張変更・設計全面書き換え・セクション削除。
+
+**CONSTRAINT**: 違反ラベル付き指摘は自動降格。`:remark`で明示的指定時のみ例外許可。
+
+### 3.2 Fail-Fast Policy
+
+```abnf
+RULE FAIL_FAST:
+  IF structural_collapse → INCOMPLETE + "構造崩壊"
+  IF technical_fatality → SKIP + "技術的致命傷"
+  IF unreadability → INCOMPLETE + "可読性未確立"
+  IF insufficient_length → INCOMPLETE + "文章量不足"
+  IF incomplete_content → INCOMPLETE + "未完成"
+```
+
+**判定基準 (形式化・検出方法)**:
+
+| 条件                | 検出方法                                          | 閾値                   | 根拠             |
+| ------------------- | ------------------------------------------------- | ---------------------- | ---------------- |
+| structural_collapse | 見出し階層飛び: `^#{1,6}` regex, 必須section欠落  | gap>1 OR 概要/結論なし | 構造破綻         |
+| technical_fatality  | コードブロック未閉: `` ``` `` ペア不整合, API誤用 | unclosed>0 OR errors≥3 | 実行不可能       |
+| unreadability       | 主題文欠落率, 接続詞密度                          | 欠落率>50% OR 接続<10% | 意図伝達不可     |
+| insufficient_length | Unicode文字数 (コードブロック除外)                | <500文字               | レビュー対象不足 |
+| incomplete_content  | TODO/TBDマーカー: `/TODO\|FIXME\|TBD\|WIP/`, 箇条 | ≥1個 OR 比率>30%       | 未完成           |
+
+**NOTE**: 閾値はヒューリスティック。建設的な再提出ガイド必須。拒否=「前提条件未達」(「改善余地なし」でない)。
+
+**CONSTRAINT**: 建設的な再提出ガイド提供必須。レビュー拒否=「改善の余地なし」でなく「レビュー前提条件未達」。
+
+### 3.3 Priority Conversion
+
+```abnf
+PRIORITY_CONVERSION:
+  CATEGORY_MAP: inaccuracy→A(:link有)|B(:linkなし) | inconsistency→B | readability→C | unknown→B
+  VIOLATION_DEGRADE: STYLE_OVERRIDE→D | INTENT_DISREGARD→D | SUBJECTIVE_BIAS→E | SCOPE_EXCESS→D
+```
+
+**CATEGORY → PRIORITY 写像**:
+
+| CATEGORY | デフォルトPRIORITY | :link有 | :linkなし | VIOLATION降格 |
+|----------|-------------------|---------|-----------|--------------|
+| inaccuracy | A / B | A | B | 違反時→D/E |
+| inconsistency | B | - | B | 違反時→D/E |
+| readability | C | - | C | 違反時→D/E |
+| unknown | B | - | B (保守的設定) | 違反時→D/E |
+
+**優先順位**: `:remark` > VIOLATION降格 > CATEGORY写像 > デフォルト
+
+### 3.4 制約規則統合
+
+**Philosophy enforcement**:
+
+- 違反ラベル付き指摘は自動降格
+- LLM は違反を自己検出し、違反に応じたラベルの付与が必須
+- レビュー出力は哲学原則に従う
+- `:remark` で明示的に指定された場合のみ例外を許可
+
+**ACCEPTANCE principle**:
+
+- ACCEPTANCE は品質評価ではなく、入力/処理の境界
+- PENDING 状態では沈黙 (自発的動作禁止)
+- ACCEPTANCE は「主導権の宣言」、LLM の自発的動作は主導権侵害
+- すべての処理は明示的なコマンドでのみ開始
+
+**Fail-fast constraints**:
+
+- 建設的な再提出ガイドを必ず提供
+- レビュー拒否は「レビュー前提条件未達」を意味する (「改善の余地なし」ではない)
+
+**Enum constraints**:
+
+- CATEGORY/PRIORITY の enum 拡張は禁止 (closed: true)
+- VIOLATION/STATUS の enum 拡張は禁止 (closed: true)
+- VIOLATION 付き指摘は自動的に PRIORITY 降格 (side_effects 定義に従う)
+- STATUS 付き指摘はレビュー保留状態、ユーザー応答待機
+- 同一指摘に VIOLATION+STATUS の両方付与可能、効果は累積
+- `unknown` カテゴリは判定不能時のフォールバック専用、通常使用禁止
+
+**Override mechanism**:
+
+- `:remark` はすべての規則を上書き可能
+- フォールバック規則適用時も `:remark` > システムデフォルト
+- CATEGORY→PRIORITY 写像は `:remark` で上書き可能
+
+---
+
+## 4. 標準マクロ
+
+### 4.1 入力セクション
+
+```abnf
+BEGIN INPUT
+/set :role = | - <役割>
+/set :link = | - <URL> (<目的>)
+/set :remark = "<特記>"
+END INPUT
+```
+
+**NOTE**: 変数初期化専用。値形式: `"text"` (文字列) | `|` (複数行) | `""""` (heredoc)。
+
+### 4.2 標準コマンド
+
+| コマンド            | 動作                    | 値形式            |
+| ------------------- | ----------------------- | ----------------- |
+| /begin              | CLEAR :buffer           | -                 |
+| /end                | :buffer確定             | -                 |
+| /exit               | CLEAR ALL               | -                 |
+| /reset <:var..>     | CLEAR :var..            | -                 |
+| /set <:var>=<value> | SET :var=value          | "text"\|\|\|"""" |
+
+**NOTE**: スコープ内上書き可。SESSION=/exit, REVIEW=/begin。
+
+### 4.3 標準変数
+
+| 変数    | スコープ | 用途                             | クリア |
+| ------- | -------- | -------------------------------- | ------ |
+| :role   | SESSION  | ユーザー役割                     | /exit  |
+| :link   | SESSION  | 参考URL (文体抽象化、模倣禁止)   | /exit  |
+| :remark | SESSION  | 特記事項                         | /exit  |
+| :buffer | REVIEW   | 入力蓄積                         | /begin |
+| :review | REVIEW   | 処理結果                         | /begin |
+
+### 4.4 標準イベント
+
+| イベント           | タイミング | ペイロード                      |
+| ------------------ | ---------- | ------------------------------- |
+| ProcessStarted     | 開始       | command:text, mode:mode         |
+| ProcessInterrupted | 中断       | reason:text, previous_mode:mode |
+| ProcessCompleted   | 完了       | result:object                   |
+| ProcessFailed      | 失敗       | error:text                      |
+| ModeChanged        | ACCEPTANCE遷移   | from:mode, to:mode              |
+
+### 4.5 文章位置定義
+
+```abnf
+LOCATION ::= セクションID.ノード種別.文章インデックス
+セクションID ::= 見出し[番号]
+ノード種別 ::= paragraph | list_item | heading
+文章インデックス ::= node[n].sentence[m]
+文区切り ::= 。 | ？ | ！ | :
+```
+
+### 4.6 出力構造
+
+#### OUTPUT形式スキーマ (厳密定義・判別共用体)
+
+```yaml
+# JSON Schema相当の厳密な型定義
+OUTPUT:
+  meta_state: none | rejected | generated
+  # none: 未生成 (条件不足)
+  # rejected: 拒否 (RejectResult)
+  # generated: 正常 (ReviewResult/ErrorResult)
+
+  type: discriminated-union
+  discriminator: meta_state
+  variants:
+    - ReviewResult # meta_state=generated
+    - ErrorResult # meta_state=generated
+    - RejectResult # meta_state=rejected
+
+# レビュー結果 (通常ケース)
+ReviewResult:
+  type: object
+  required: [findings]
+  properties:
+    findings:
+      type: array
+      minItems: 0
+      items: Finding
+    summary:
+      type: string?
+    open_questions:
+      type: array?
+      items: string
+
+# エラー結果
+ErrorResult:
+  type: object
+  required: [ERROR, REASON]
+  properties:
+    ERROR:
+      type: enum
+      values: ["VALIDATION_FAILED", "BUFFER_UNDEFINED", "PROCESSING_ERROR"]
+    REASON:
+      type: string
+      minLength: 1
+    open_questions:
+      type: array?
+      items: string
+
+# レビュー拒否結果
+RejectResult:
+  type: object
+  required: [REVIEW_REJECTED, REASON, FAIL_FAST_CONDITION]
+  properties:
+    REVIEW_REJECTED:
+      type: literal
+      value: true
+    REASON:
+      type: string
+      minLength: 1
+    FAIL_FAST_CONDITION:
+      type: enum
+      values: [
+        "structural_collapse",
+        "technical_fatality",
+        "unreadability",
+        "insufficient_length",
+        "incomplete_content",
+      ]
+    RECOMMENDATION:
+      type: string?
+```
+
+#### Finding形式 (順序固定・field_order: strict)
+
+```yaml
+Finding:
+  type: object
+  format: key-value-lines # "key: value\n" 形式
+  field_order: strict # フィールド順序厳守
+  required: [指摘種別, CATEGORY, PRIORITY, 識別子, 該当箇所, 内容, 根拠]
+  properties:
+    指摘種別:
+      type: enum
+      values: ["修正必須", "注意喚起", "判断保留"]
+    CATEGORY:
+      type: enum
+      values: ["readability", "inconsistency", "inaccuracy", "unknown"]
+    PRIORITY:
+      type: enum
+      values: ["A", "B", "C", "D", "E"]
+    識別子:
+      type: string
+      pattern: "^[a-zA-Z0-9_-]+$"
+      uniqueness: session-scoped
+    該当箇所:
+      type: string
+      format: LOCATION
+    内容:
+      type: string
+      minLength: 1
+    根拠:
+      type: string
+      minLength: 1
+    VIOLATION:
+      type: enum?
+      values: ["STYLE_OVERRIDE", "INTENT_DISREGARD", "SUBJECTIVE_BIAS", "SCOPE_EXCESS"]
+      side_effect: "PRIORITY自動降格→D"
+    STATUS:
+      type: enum?
+      values: ["QUESTION_REQUIRED", "CLARIFICATION_NEEDED"]
+
+  # フィールド出力順序 (厳密)
+  output_order:
+    1: 指摘種別
+    2: CATEGORY
+    3: PRIORITY
+    4: 識別子
+    5: 該当箇所
+    6: 内容
+    7: 根拠
+    8: VIOLATION # 存在する場合
+    9: STATUS # 存在する場合
+
+  # 区切り規則
+  separator: "\n" # フィールド間改行
+  finding_separator: "\n---\n" # 指摘間区切り
+```
+
+**CONSTRAINT**: フィールド順序厳守(1→9)。識別子=セッション内一意。VIOLATION付き=自動降格。enum拡張禁止(closed: true)。該当箇所=4.5で定義されたLOCATION形式。meta_state は discriminator として OUTPUT variant を決定。
+
+#### CATEGORY/PRIORITY定義
+
+| CATEGORY | 意味 | デフォルトPRIORITY | 使用条件 |
+|----------|------|-------------------|---------|
+| inaccuracy | 技術的誤り | A (:link有) / B (:linkなし) | 事実誤認、API誤用、コードバグ |
+| inconsistency | 不整合 | B | 用語不統一、論理矛盾 |
+| readability | 可読性 | C | 冗長表現、構造改善 |
+| unknown | 判定不能 | B (保守的設定)  | フォールバック専用 |
+
+| PRIORITY | 意味 | 用途 |
+|----------|------|------|
+| A | 最高優先度 (致命的)  | 技術的誤り (:link検証済み)  |
+| B | 高優先度 (重要)  | 構造的問題、不整合、技術的誤り (未検証)  |
+| C | 中優先度 (推奨)  | 可読性、表現改善 |
+| D | 低優先度 (任意)  | スタイル提案、哲学違反降格 |
+| E | 最低優先度 (情報)  | 参考情報、補足 |
+
+#### VIOLATION/STATUS定義
+
+| ラベル | タイプ | 効果 | PRIORITY |
+|--------|--------|------|----------|
+| VIOLATION: STYLE_OVERRIDE | 違反 | 指摘をDに降格 | D |
+| VIOLATION: INTENT_DISREGARD | 違反 | ユーザー確認要求 | D |
+| VIOLATION: SUBJECTIVE_BIAS | 違反 | 指摘をEに降格 | E |
+| VIOLATION: SCOPE_EXCESS | 違反 | 範囲逸脱通知 | D |
+| STATUS: QUESTION_REQUIRED | 状態 | レビュー保留 | - |
+| STATUS: CLARIFICATION_NEEDED | 状態 | 明確化要求 | - |
+
+**CONSTRAINT**: enum拡張禁止 (closed: true) 。CATEGORY→PRIORITY写像は`:remark`で上書き可。VIOLATION付き指摘は自動降格、STATUS付きは保留状態。
+
+---
+
+## 5. スタイル指針
+
+### 5.1 命名規則
+
+| 要素               | 型           | 制約         | スタイル              | 例                   |
+| ------------------ | ------------ | ------------ | --------------------- | -------------------- |
+| ACCEPTANCE/CMD/VAR/EVENT | `<ascii-id>` | 英数字-_     | snake_case/PascalCase | cmd, :buf, ModeChg   |
+| FIELD/RULE         | `<label>`    | 日本語許可   | -                     | 重要度, セクションID |
+| AS                 | -            | 表示名       | 日本語推奨            | ACCEPTANCE cmd AS "コマンド" |
+
+**NOTE**: コード参照=識別子 | LLM出力=AS優先。
+
+### 5.2 コーディングスタイル
+
+| 項目     | 規則                                    |
+| -------- | --------------------------------------- |
+| 形式     | インライン (`->`, 120文字) \| ブロック  |
+| EXECUTE  | 1文=1責務、ACCEPTANCE遷移・SET明示      |
+| 制約     | CONSTRAINT/EVENT形式化                  |
+| 出力構造 | トレーサビリティ・再現性保証            |
+
+### 5.3 EXECUTE 運用ガイドライン
+
+EXECUTE 文は操作的ディレクティブ (operational directive) であり、慎重な使用が必要です。
+
+| リスク            | アンチパターン                 | 推奨パターン                 | ガイドライン                                 |
+| ----------------- | ------------------------------ | ---------------------------- | -------------------------------------------- |
+| verbosity         | 長大な EXECUTE 文              | 段階的 EXECUTE 分割          | 1 statement = 1 責務原則                     |
+| state_deviation   | EXECUTE 内で暗黙的状態遷移     | 明示的 SET 文で状態変更      | SESSION_PHASE 遷移は明示的に SET で記述      |
+| implicit_trans    | 事後条件を暗黙的に仮定         | CONSTRAINT で明記            | 停止条件・前提条件は形式化                   |
+| flow_control_leak | EXECUTE で通常フロー制御を迂回 | COMMAND による明示的制御     | EXECUTE は例外処理のみ、通常フローは COMMAND |
+| execution_assumed | Appendix 記載=実行と誤解       | 「参照のみ・実行禁止」を明記 | EXECUTE は列挙手順のみ (実行は LLM 判断)     |
+
+**CONSTRAINT**:
+
+- EXECUTE 文内での ACCEPTANCE 遷移は禁止 (明示的 SET で記述)
+- EXECUTE は宣言的記述、LLM への指針提供が目的 (強制実行ではない)
+- EXECUTE 文は Appendix の手順を「参照」、自動実行は行わない
+
+**NOTE**: EXECUTE 文の過剰使用は DSL の宣言的性質を損なう。通常フロー制御は COMMAND/EVENT で表現。
+
+### 5.4 出力CONSTRAINT
+
+| 項目             | 要求                                     |
+| ---------------- | ---------------------------------------- |
+| トレーサビリティ | 重複排除、根拠明示、改善案対応、後段連携 |
+| 一貫性           | 指摘固定、優先度安定、スタイル統一       |
+| 1:1対応          | 指摘→根拠→改善案の追跡可能性             |
+
+### 5.5 アンチパターン
+
+#### 一般アンチパターン
+
+| 禁止事項                       | 理由                |
+| ------------------------------ | ------------------- |
+| EVENT内ACCEPTANCE遷移 (復旧外) | フロー制御迂回      |
+| NOTE内容での制御               | 意味論レイヤー混同  |
+| PRIORITY評価順序制御           | 用途外使用          |
+| description判定                | テキストのパース    |
+| Appendix暗黙実行               | EXECUTE明示原則違反 |
+
+#### EVENT handler アンチパターン (SESSION_PHASE制御)
+
+EVENT handler は異常系復旧専用であり、通常フロー制御に使用禁止です。
+
+| 禁止パターン          | 理由                         | 推奨代替                                |
+| --------------------- | ---------------------------- | --------------------------------------- |
+| normal_flow_control   | 通常フロー制御の迂回         | COMMAND による明示的フロー制御          |
+| conditional_branching | 条件分岐の隠蔽               | COMMAND 内での明示的条件分岐            |
+| arbitrary_transition  | SESSION_PHASE の恣意的遷移   | COMMAND による明示的 SESSION_PHASE 遷移 |
+| implicit_state_change | 状態変更の暗黙化             | SET 文による明示的状態変更              |
+| handler_chaining      | handler 連鎖によるフロー構築 | COMMAND 連鎖                            |
+
+**許可用途** (復旧のみ):
+
+| 許可パターン             | 用途                       | 例                                               |
+| ------------------------ | -------------------------- | ------------------------------------------------ |
+| abnormal_termination_rec | 異常終了からの復旧         | `ON ProcessFailed DO SET ACCEPTANCE=PENDING END` |
+| error_rollback           | エラー時の状態ロールバック | `ON ValidationError DO CLEAR :buffer END`        |
+
+**CONSTRAINT**:
+
+- EVENT handler 内での SESSION_PHASE 遷移は復旧目的のみ許可
+- 通常フロー制御・条件分岐・遷移規則迂回は COMMAND で表現
+- EVENT は「通知」、handler は「復旧」のみの責務
+
+**NOTE**: EVENT handler の過剰使用は DSL の宣言的性質を損なう。通常フロー制御は COMMAND で明示的に表現。
+
+---
+
+## 6. プロンプト固有定義
+
+### 6.1 モード定義
+
+```abnf
+ACCEPTANCE   ::= PENDING | ACTIVE              ; 初期=PENDING, AS="受付中|処理中"
+EXECUTE_MODE ::= idle | processing             ; 初期=idle, AS="待機中|処理中"
+```
+
+**ACCEPTANCE PRINCIPLE** (意味固定):
+
+ACCEPTANCE は合否や品質評価を意味しない。ACCEPTANCE は文章の受付と処理開始の境界を示す。
+
+```
+PRINCIPLE ACCEPTANCE semantics (意味固定):
+  ACCEPTANCE は合否や品質評価を意味しない
+  ACCEPTANCE は文章の受付と処理開始の境界を示す
+  ACCEPTANCE が PENDING の間、モデルは沈黙する
+  明示的なコマンドにより、ACCEPTANCE は一時的に ACTIVE とみなされる
+
+ACCEPTANCE STATES:
+  PENDING (受付中) = 文章受付中、処理しない
+    - 記事テキスト貼り付け中
+    - モデルは保持のみ
+    - 解析・要約・応答は禁止
+    - 沈黙が正解
+
+  ACTIVE (処理中) = 明示指示により処理を開始してよい
+    - /review によって明示的に ACTIVE 化
+    - 指定された範囲のみ校正
+    - 出力完了後は原則 PENDING に戻る (自動ではなく合意)
+
+CONSTRAINT silent accumulation:
+  ACCEPTANCE=PENDING: :buffer 蓄積のみ、解析禁止、/end まで沈黙
+  ACCEPTANCE=PENDING: /review なし = 出力禁止、確認メッセージ禁止
+
+RULE user authority:
+  すべての処理は明示的なコマンドでのみ開始される
+  LLM の自発的な動作は主導権侵害とみなす
+```
+
+**ACCEPTANCE遷移規則**:
+
+| 状態    | :buffer状態 | 受付可能コマンド               | ACCEPTANCE遷移   |
+| ------- | ----------- | ------------------------------ | ---------------- |
+| PENDING | 空/構築中   | /begin, /set, /reset, /end, /exit | -                |
+| PENDING | 確定        | /review, /begin, /exit         | /review→ACTIVE   |
+| ACTIVE  | 確定        | /exit (強制終了のみ)           | 完了後→PENDING   |
+
+**NOTE**: ACCEPTANCE=PENDING: 文章受付中または待機中、処理しない。ACCEPTANCE=ACTIVE: /review実行中のみ、一時的に処理許可。完了後は自動的にPENDINGに戻る(自動ではなく合意による)。
+
+**EXECUTE_MODE制約**:
+
+| 項目         | 規則                                       |
+| ------------ | ------------------------------------------ |
+| 可視性       | 内部専用、ユーザー不可視                   |
+| 遷移条件     | ACCEPTANCE=ACTIVE時のみ                         |
+| processing時 | ユーザー入力保留、/exit以外無視            |
+| 再入         | /review再入禁止(processing判定)            |
+| 出力         | processing時=事実通知のみ(1-2文/10語以内) |
+
+**NOTE**: 事実通知例: "校閲処理中です" (許可) | 説明文例: "〜の理由で確認中" (禁止)。中間結果・判断内容=idle復帰後出力。
+
+### 6.2 固有変数
+
+```abnf
+; SESSION scope
+VAR SESSION :dictionary ; 辞書サイトURL(デフォルト設定済み)
+```
+
+**NOTE**: :dictionaryは校閲固有変数。CLEARBY /exit。
+
+### 6.3 固有コマンド
+
+```abnf
+/review [<section>] ::= 校閲実行(全体または特定セクション)
+```
+
+| フェーズ   | アクション                                                     |
+| ---------- | -------------------------------------------------------------- |
+| 前処理     | EXEC_MODE=processing, CLEAR :review                            |
+| 入力検証   | :buffer検証(定義・非空・100文字以上), 必須変数(:role, :dictionary)確認 |
+| 校閲       | 校閲指示適用                                                   |
+| 後処理     | EXEC_MODE=idle                                                 |
+
+**CONSTRAINT 入力検証**:
+
+| 項目        | 条件             | 失敗時アクション               |
+| ----------- | ---------------- | ------------------------------ |
+| :buffer定義 | defined(:buffer) | EMIT ProcessFailed, ACCEPTANCE=PENDING   |
+| :buffer非空 | length > 0       | EMIT ProcessFailed, ACCEPTANCE=PENDING   |
+| 文字数      | length >= 100    | 警告("推奨: 100文字以上")      |
+
+**NOTE**: 検証失敗時=診断メッセージ出力。agent/CLI/MCP連携時の挙動安定化。
+
+### 6.4 優先度定義
+
+| 優先度 | 意味                         | 適用場面                           |
+| ------ | ---------------------------- | ---------------------------------- |
+| S      | 特記事項・変更禁止           | :remark指定、非校閲領域            |
+| A      | 基本方針・共通ルール         | 正確性検証、:role適用              |
+| B      | 正確性・一貫性               | ASCII使用、表記統一                |
+| C      | 品質向上                     | 表記揺れ、文体                     |
+| E      | 個性保持                     | 固有表現、著者スタイル             |
+
+**NOTE**: OUTPUT生成時の分類・強調のみに使用。実行順序制御には使用禁止。
+
+### 6.5 出力形式
+
+```abnf
+OUTPUT ::= Issue ID, 重要度, 指摘種別, 改善点, 修正前, 修正後, 修正理由, 検証根拠
+Issue ID ::= <section>-<nnn>  ; section=小文字英数字, nnn=001-999
+
+| FIELD    | 値                                    |
+| -------- | ------------------------------------- |
+| Issue ID | <section>-<3桁連番>                   |
+| 重要度   | S\|A\|B\|C\|E                         |
+| 指摘種別 | 修正必須\|注意喚起\|判断保留          |
+| 改善点   | 修正理由+提案内容                     |
+| 修正前   | 原文引用                              |
+| 修正後   | 修正案\|"該当なし"\|"提案せず"        |
+| 修正理由 | 修正目的                              |
+| 検証根拠 | :dictionary/:link参照\|"検証不能"     |
+
+**指摘種別**:
+
+| 種別     | 定義                   |
+| -------- | ---------------------- |
+| 修正必須 | 明確な誤り、必須修正   |
+| 注意喚起 | 問題可能性、確認推奨   |
+| 判断保留 | 情報不足、ユーザー判断 |
+
+**NOTE**: Issue IDで複数回実行時の指摘対応付け可能。差分校閲・CI連携容易化。/reviewは校閲実行唯一のコマンド(実行パス一意決定、状態機械単純化、CLI/MCP連携予測可能性保証)。
+
+### 6.6 指摘カテゴリ定義
+
+**readability (読みにくさ)**:
+
+| 観点           | 検出条件             |
+| -------------- | -------------------- |
+| 一文の長さ     | 100文字以上          |
+| 主語不明       | 主語省略/曖昧        |
+| 修飾多重化     | 3層以上入れ子        |
+| 接続詞連続     | 3個以上連続          |
+| 代名詞曖昧     | 指示対象不明確       |
+
+**inaccuracy (技術的正確性)**:
+
+| 観点             | 検出条件                     |
+| ---------------- | ---------------------------- |
+| 用語誤用         | :dictionary/:link基準違反    |
+| 一般的理解乖離   | 一般的理解と異なる断定表現   |
+| 事実誤認         | :link参照で確認不可な主張    |
+| 曖昧な数量表現   | 主観的表現("多い"など)       |
+| 引用元不明       | 出典不明な統計・事実         |
+
+**inconsistency (一貫性)**:
+
+| 観点         | 検出条件                 |
+| ------------ | ------------------------ |
+| 表記揺れ     | 同一概念で異なる表記     |
+| 送り仮名揺れ | 同一語で送り仮名不一致   |
+| 文体不統一   | ですます/である混在      |
+| 記号不統一   | 括弧・引用符・記号混在   |
+| 全角半角混在 | ASCII文字表記揺れ        |
+
+**CATEGORY→PRIORITY写像**:
+
+| Category      | 条件        | PRIORITY |
+| ------------- | ----------- | -------- |
+| inaccuracy    | :linkあり   | A        |
+| inaccuracy    | :linkなし   | B        |
+| inconsistency | -           | B        |
+| readability   | -           | C        |
+
+**NOTE**: :remarkで上書き可能。複数該当時=最高優先度採用。
+
+### 6.7 校閲指示
+
+**NOTE**: 以下の指示は `/review` コマンド実行時 (ACCEPTANCE=ACTIVE, EXEC_MODE=processing) にのみ適用。
+
+#### 校閲指示1: 文章表現・スタイル
+
+| Pri | 観点             | ルール                                                       |
+| --- | ---------------- | ------------------------------------------------------------ |
+| S   | 非校閲領域       | DSL/DEF/RULE/CONSTRAINT/BEGIN INPUT-END INPUT/Appendix=対象外 |
+| S   | :remark指定      | 一切変更禁止                                                 |
+| S   | コードブロック   | 誤字脱字のみ修正可                                           |
+| S   | ASCII            | 英数字・記号=半角                                            |
+| S   | バックティック   | 技術用語/コード/コマンド/ファイル名=`囲み`                   |
+| S   | 技術的正確性     | :dictionary/:link基準                                        |
+| A   | 文法・表現・語彙 | 誤字脱字、不自然表現、送り仮名、助詞連続修正                 |
+| A   | バランス         | 技術文書⇔カジュアルブログ                                    |
+| A   | 冪等性           | 同一条件で一貫した結果                                       |
+| B   | 本文文体         | ですます調                                                   |
+| B   | 箇条書き文体     | である調/体言止め                                            |
+| B   | 手順文体         | 1行目=体言止め, 2行目以降=ですます調可                       |
+| B   | 送り仮名平仮名   | 平仮名                                                       |
+| B   | 「行なう」       | 「行う」→「行なう」                                          |
+| C   | 表記統一         | 表記・文体・句読点の統一                                     |
+| C   | 表記揺れ         | 同一概念の統一表記                                           |
+| E   | 固有表現保持     | "Enjoy!", "Happy Hacking!", "atsushifx です"=変更禁止        |
+
+**非校閲領域** (自己再帰防止):
+
+```abnf
+非対象 ::= DEF/INSERT/EVENT block
+         | RULE/CONSTRAINT/CATEGORY/PRIORITY block
+         | "## 1. 構文 (BNF)" | "## 2. 意味論"
+         | BEGIN INPUT ~ END INPUT
+         | "## Appendix"
+         | コードブロック構文(誤字脱字のみ可)
+```
+
+**NOTE**: 非対象領域への指摘=全面禁止。DSL定義が読みにくくても指摘禁止。無限ループ防止。
+
+#### 校閲指示2: 文章構成・理路
+
+| 観点               | 確認内容               |
+| ------------------ | ---------------------- |
+| セクション全体構成 | 各セクション構成適切性 |
+| セクション間連携   | 論理的つながり         |
+| 論理展開明確性     | 明確・理解容易性       |
+| 論理展開自然性     | 自然・段階的           |
+
+**確認項目**: 前提条件明示、結論の論理的導出、セクション間遷移、段階的理解可能構成。
+
+#### 校閲指示3: 技術的正確性検証
+
+| 条件            | 検証方法                     | 検証失敗時                        |
+| --------------- | ---------------------------- | --------------------------------- |
+| :link指定あり   | :linkから事実・仕様検証      | 「判断保留」+「要出典」           |
+| :link古い(2年+) | 「注意喚起」+「リンク古い」  | -                                 |
+| :link指定なし   | 一般技術常識照合             | 「判断保留」+「検証不能(要出典)」 |
+| 推測・経験談    | 「判断保留」+「個人的見解」  | -                                 |
+| 断定表現        | :linkなし→「推量表現推奨」   | -                                 |
+
+**NOTE**: 検証プロトコル=モデル間判定一貫性保証。「全指摘」or「無指摘」両極端防止。
+
+### 6.8 プロンプト共通変数
+
+| 変数        | スコープ | 用途                     | デフォルト         |
+| ----------- | -------- | ------------------------ | ------------------ |
+| :role       | SESSION  | AIペルソナ定義           | 下記リスト         |
+| :dictionary | SESSION  | 辞書サイト(表記揺れ基準) | 下記URLリスト      |
+
+**NOTE**: :role=校閲品質基準・観点決定。:dictionary=日本語表記・送り仮名・専門用語基準。
+
+---
+
+## Appendix A: Proofreading Protocol
+
+### A.1 校閲フロー
+
+```abnf
+flow ::= /begin -> input-phase -> /end -> /review -> process-phase -> output-phase
+input-phase    ::= ACCEPTANCE=PENDING -> user-input* -> :buffer蓄積
+process-phase  ::= ACCEPTANCE=ACTIVE -> EMIT ProcessStarted -> validate -> execute-proofreading -> EMIT ProcessCompleted
+output-phase   ::= ACCEPTANCE=PENDING (再実行可能)
+```
+
+**NOTE**: 校閲実行=`/review`コマンド時のみ (遅延評価)。イベント駆動処理。
+
+### A.2 校閲処理手順
+
+| 順序 | フェーズ       | 動作                                           |
+| ---- | -------------- | ---------------------------------------------- |
+| 1    | 入力検証       | EMIT ProcessStarted -> :buffer検証、必須変数確認 |
+| 2    | 校閲実行       | 優先度(S/A/B/C/E)別チェック、改善点抽出        |
+| 3    | 結果整理       | 行番号順ソート                                 |
+| 4    | 保存・出力     | :review保存、出力形式整形                      |
+| 5    | 完了           | EMIT ProcessCompleted -> ACCEPTANCE=PENDING          |
+| 6    | エラー処理     | EMIT ProcessFailed -> ACCEPTANCE=PENDING             |
+
+**NOTE**: 利用可能コマンド=`/review [セクション]`, `/begin`。
+
+---
+
+## Appendix B: プロジェクト固有変数
+
+### B.1 変数定義
+
+| 変数        | スコープ | 用途                       | 形式    | デフォルト     |
+| ----------- | -------- | -------------------------- | ------- | -------------- |
+| :role       | SESSION  | AIペルソナ(校閲品質基準)   | list    | 下記リスト     |
+| :dictionary | SESSION  | 辞書サイト(表記揺れ基準)   | list    | 下記URLリスト  |
+| :link       | SESSION  | 参考資料(事実確認・仕様検証) | list    | ""             |
+| :remark     | SESSION  | 追加指示(優先度S相当)      | heredoc | ""             |
+
+**NOTE**: :dictionary=日本語表記・送り仮名・専門用語基準。:link=公式ドキュメント・信頼できる技術情報源優先。:remark=他ルールより優先。
+
+```bnf
+BEGIN INPUT
+/set :role = |
 - 辞書 (`:dictionary`)を使用して、日本語、漢字の表記揺れに精通している校閲担当
 - 公的情報 (`:link`) を参照し、正確性を検証する専門家
 
-""""
-:link
+/set :dictionary = |
+- <https://www.weblio.jp/> (参照目的: 日本語表記・送り仮名の基準)
+- <https://kotobank.jp/> (参照目的: 専門用語の定義)
+- <https://www.oxfordlearnersdictionaries.com/> (参照目的: 英語表記の基準)
+- <https://www.dictionary.com/> (参照目的: 英語表記の基準)
 
-- deckrd github: <https://github.com/aglabo/deckrd>
-  deckrd 公式 リポジトリ
-
-- README: <https://github.com/aglabo/deckrd/blob/main/plugins/deckrd/README.md>
-  deckrd GitHub リポジトリ README
-
-- deckrd coder README: <https://github.com/aglabo/deckrd/tree/main/plugins/deckrd-coder/README.md>
-  `deckrd coder` GitHub リポジトリ README
-
-""""
-:remark
-
-- 本記事では、deckrd の設計思想とドキュメント導出の流れに焦点を当てる。
-  実装（コード）の詳細には踏み込まず、どのように要求・仕様・タスクが整理されるかを中心に紹介する。
-
-""""
+/set :link = ""
+/set :remark = ""
+END INPUT
+```
