@@ -981,10 +981,15 @@ BEGIN INPUT
 - 超一流のベテラン技術ブロガー
 - 超一流の編集者
 
-/set :theme = ""
-/set :target = ""
-/set :goal = ""
-/set :link = ""
+/set :theme = "GitHub Reusable Workflowsを用いた組織横断CI/CD基盤の設計と運用"
+/set :target = "GitHub Actionsを既に利用しており、複数リポジトリ間で設定がばらつき、保守・更新の手間に課題を感じているエンジニア。CI/CDの基本は理解済みだが、組織的な統一や再現性の確保に踏み込めていない段階の読者。"
+/set :goal = "Reusable Workflowsによる統一的なCI/CD基盤の構築方法を理解し、Composite ActionsやWorkflow Templatesとの比較軸に基づいた選択、実務エラー回避(secrets: inherit制約、permissions未指定リスク、private repo SHA問題)、および「設計可能な境界」としての本質的価値を把握できる。"
+/set :link = |
+- <https://docs.github.com/ja/actions/how-tos/reuse-automations/reuse-workflows> (ワークフローを再利用する - GitHub公式ドキュメント)
+- <https://docs.github.com/ja/actions/concepts/security> (GitHub Actionsのセキュリティ - GitHub公式ドキュメント)
+- <https://docs.github.com/ja/actions/reference/security/secure-use> (セキュリティで保護された使用に関するリファレンス - GitHub公式ドキュメント)
+- <https://github.com/suzuki-shunsuke/ghalint> (ghalint - GitHub Actions Linter)
+- <https://github.com/atsushifx/.github> (実装例リポジトリ)
 /set :remark = ""
 END INPUT
 ```
