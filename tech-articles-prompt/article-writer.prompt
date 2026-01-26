@@ -179,7 +179,19 @@ field       = 1*(ALPHA / DIGIT / "_")
 
 **NOTE**: CONSTRAINT/RULE = 意味論的ガード (解釈フェーズ評価)。構文要素ではない。
 
-### 2.2 NOTE意味論
+### 2.2 Command Alias Resolution
+
+```abnf
+COMMAND_NORMALIZATION ::= alias-resolve
+
+alias-resolve:
+  IF command == "/w"
+  THEN command := "/write"
+```
+
+**NOTE**: `/w` は `/write` の完全なエイリアス。意味論的差異・副作用の違いは存在しない。評価前に正規化され、ACCEPTANCE遷移・EXECUTE_MODE遷移・generation-status・再入禁止挙動はすべて `/write` と完全一致する。
+
+### 2.3 NOTE意味論
 
 ```bnf
 note-placement ::= [action..] [NOTE:..] [CONSTRAINT:..]
@@ -199,7 +211,7 @@ note-format    ::= 単一段落 | 複数段落(サブトピック区切り)
 
 NOTE: ACCEPTANCE 遷移・COMMAND 可否判断に NOTE 内容使用禁止。解釈ロジックから分離。
 
-### 2.3 モード遷移
+### 2.4 モード遷移
 
 ```abnf
 ACCEPTANCE   ::= PENDING | ACTIVE              ; 初期=PENDING
@@ -239,20 +251,20 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 | EXECUTE_MODE | idle→proc→idle               | proc→proc禁止                       | ACCEPTANCE=ACTIVE時 |
 | 出力制約     | processing時=事実通知のみ    | processing時=説明文・考察・推論禁止 | -                   |
 
-### 2.4 コマンド制約
+### 2.5 コマンド制約
 
-| コマンド | ACCEPTANCE要求 | 副作用                                              | 再入 |
-| -------- | -------------- | --------------------------------------------------- | ---- |
-| /begin   | *              | CLEAR :buffer                                       | 可   |
-| /end     | *              | :buffer確定                                         | -    |
-| /write   | PENDING        | ACCEPTANCE=ACTIVE (一時), EXEC_MODE: idle→proc→idle | 禁止 |
-| /exit    | *              | CLEAR ALL, EXEC_MODE=idle                           | -    |
-| /reset   | *              | CLEAR :var.. (スコープ内のみ)                       | -    |
-| /set     | *              | SET :var=value (スコープ内上書き許可)               | -    |
+| コマンド         | ACCEPTANCE要求 | 副作用                                              | 再入 |
+| ---------------- | -------------- | --------------------------------------------------- | ---- |
+| /begin           | *              | CLEAR :buffer                                       | 可   |
+| /end             | *              | :buffer確定                                         | -    |
+| /write, /w [section] | PENDING    | ACCEPTANCE=ACTIVE (一時), EXEC_MODE: idle→proc→idle | 禁止 |
+| /exit            | *              | CLEAR ALL, EXEC_MODE=idle                           | -    |
+| /reset           | *              | CLEAR :var.. (スコープ内のみ)                       | -    |
+| /set             | *              | SET :var=value (スコープ内上書き許可)               | -    |
 
-**NOTE**: /write = ACCEPTANCE一時ACTIVE化、EXEC_MODE遷移必須、再入禁止。他コマンドはACCEPTANCE状態不問。
+**NOTE**: /write, /w = ACCEPTANCE一時ACTIVE化、EXEC_MODE遷移必須、再入禁止。他コマンドはACCEPTANCE状態不問。
 
-### 2.5 変数スコープ
+### 2.6 変数スコープ
 
 | スコープ | ライフタイム | 変数例                | クリア |
 | -------- | ------------ | --------------------- | ------ |
@@ -261,7 +273,7 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 
 **NOTE**: 暗黙可変、初期値=空文字列、再代入=スコープ内上書き。
 
-### 2.6 実行規約
+### 2.7 実行規約
 
 | 項目       | 規則                                      |
 | ---------- | ----------------------------------------- |
@@ -274,7 +286,7 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 
 **NOTE**: CLEAR ALL = 全スコープクリア。`DEF /begin THEN CLEAR :buffer END` (ACCEPTANCE状態不変)
 
-### 2.7 INSERT合成
+### 2.8 INSERT合成
 
 ```abnf
 合成順 ::= BEFORE(逆順) → 元BODY → AFTER(順順)
@@ -283,7 +295,7 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 
 **NOTE**: `INSERT /cmd BEFORE` = 後定義→先実行 | `AFTER` = 先定義→先実行。
 
-### 2.8 イベントシステム
+### 2.9 イベントシステム
 
 | 要素           | 規則                  |
 | -------------- | --------------------- |
@@ -294,7 +306,7 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 
 **NOTE**: `DEF EVENT ProcessStarted WITH cmd:text THEN END | EMIT ProcessStarted WITH cmd="/review"`
 
-### 2.9 CONSTRAINT
+### 2.10 CONSTRAINT
 
 | 要素        | 用途           | 禁止用途               |
 | ----------- | -------------- | ---------------------- |
@@ -305,7 +317,7 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 
 **NOTE**: PRIORITY = OUTPUT生成時の優先度表示・複数指摘競合時の重み付けのみ。
 
-### 2.10 エラーハンドリング
+### 2.11 エラーハンドリング
 
 #### 基本処理規則
 
@@ -369,7 +381,7 @@ NOTE: 未完成=TODO/メモ/箇条のみ検出時。エラー時=SESSION/REVIEW 
 
 **CONSTRAINT**: フォールバック規則適用時も `:remark` > システムデフォルトの優先順位維持。
 
-### 2.11 記事生成ステータス
+### 2.12 記事生成ステータス
 
 | ステータス | 意味         | 遷移条件     |
 | ---------- | ------------ | ------------ |
@@ -531,10 +543,12 @@ END INPUT
 | ------------------- | --------------------------- | ---------------- |
 | /begin              | CLEAR :buffer               | -                |
 | /end                | :buffer確定                 | -                |
-| /write              | ACCEPTANCE=ACTIVE(一時)     | -                |
+| /write, /w [section] | ACCEPTANCE=ACTIVE(一時)    | -                |
 | /exit               | CLEAR ALL                   | -                |
 | /reset <:var..>     | CLEAR :var..                | -                |
 | /set <:var>=<value> | SET :var=value              | "text"\|\|\|"""" |
+
+**NOTE**: `/w` は `/write` の完全なエイリアス。意味論的差異・副作用の違いは存在しない。
 
 **NOTE**: スコープ内上書き可。SESSION=/exit, REVIEW=/begin。
 
@@ -981,7 +995,7 @@ BEGIN INPUT
 - 超一流のベテラン技術ブロガー
 - 超一流の編集者
 
-/set :theme = "GitHub Reusable Workflowsを用いた組織横断CI/CD基盤の設計と運用"
+/set :theme = "GitHub Reusable Workflowsを用いた、複数リポジトリ横断CI/CD基盤の設計と運用の統一"
 /set :target = "GitHub Actionsを既に利用しており、複数リポジトリ間で設定がばらつき、保守・更新の手間に課題を感じているエンジニア。CI/CDの基本は理解済みだが、組織的な統一や再現性の確保に踏み込めていない段階の読者。"
 /set :goal = "Reusable Workflowsによる統一的なCI/CD基盤の構築方法を理解し、Composite ActionsやWorkflow Templatesとの比較軸に基づいた選択、実務エラー回避(secrets: inherit制約、permissions未指定リスク、private repo SHA問題)、および「設計可能な境界」としての本質的価値を把握できる。"
 /set :link = |
