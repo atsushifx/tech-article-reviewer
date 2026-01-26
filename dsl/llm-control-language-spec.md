@@ -110,6 +110,7 @@ Backbone BNF は「姿勢定義」であり、次のような目的はありま�
 - [Part 2: Semantics](#part-2-semantics)
   - [構文と意味論の分離](#構文と意味論の分離)
   - [メタブロック意味論](#メタブロック意味論)
+  - [Command Alias Resolution](#command-alias-resolution)
   - [NOTE 意味論](#note-意味論)
   - [ACCEPTANCE 遷移](#acceptance-遷移)
   - [コマンド実行制約](#コマンド実行制約)
@@ -515,6 +516,76 @@ CONSTRAINT exclusion layer distinction:
 
 END DEF
 ```
+
+### Command Alias Resolution
+
+````DSL
+BEGIN RULE DEF
+
+RULE command-alias-resolution:
+  コマンドエイリアスは意味論レイヤーでの正規化機構である
+
+  定義層:
+    - 意味論レイヤー (構文ではない)
+    - ABNF定義の変更不要 (token = 1*(ALPHA / DIGIT / "-" / "_") で既にカバー済み)
+
+  評価時期:
+    - コマンド評価前の正規化フェーズ
+    - 構文解析後、意味論評価前
+
+  効果範囲:
+    - すべてのコマンド動作 (完全一致)
+    - ACCEPTANCE遷移、EXEC_MODE遷移、副作用すべてを含む
+
+  宣言方法:
+    - プロンプト固有定義セクションで列挙
+    - プロンプト固有の Section 6 等で定義
+
+RULE alias-normalization:
+  コマンドエイリアス正規化規則:
+
+  ```abnf
+  COMMAND_NORMALIZATION ::= alias-resolve
+
+  alias-resolve:
+    IF command IN alias-map.keys
+    THEN command := alias-map[command]
+````
+
+正規化後の動作:
+
+- エイリアス解決後は元のコマンドと完全一致
+- 意味論的差異・副作用の違いは存在しない
+- ACCEPTANCE 遷移、EXEC_MODE 遷移、再入禁止挙動すべて一致
+
+CONSTRAINT alias-semantics:
+
+- エイリアスは構文拡張ではなく、意味論層での正規化
+- エイリアスは評価前に正規化され、完全なコマンド等価性を保証
+- エイリアス独自の動作・副作用は存在しない
+- プロンプト間でのエイリアス定義の統一は不要 (プロンプト固有の利便性機能)
+
+EXAMPLE alias-usage:
+`/w` → `/write` のエイリアス定義例:
+
+```DSL
+; プロンプト固有定義セクション (Section 6.3等)
+DEF COMMAND /w THEN
+  ; Section 2で定義された正規化により /write に変換
+  ; 以降の動作は /write と完全一致
+END
+```
+
+使用時の動作:
+
+- `/w` 入力 → alias-resolve → `/write` に正規化
+- `/write` のすべての制約・動作を継承
+- ACCEPTANCE: PENDING→ACTIVE(一時)→PENDING
+- EXEC_MODE: idle→processing→idle
+- 再入禁止
+- generation-status 遷移
+
+END DEF
 
 ### NOTE 意味論
 
