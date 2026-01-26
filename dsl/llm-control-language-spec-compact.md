@@ -190,7 +190,30 @@ field       = 1*(ALPHA / DIGIT / "_")
 
 NOTE: CONSTRAINT/RULE = 意味論的ガード (解釈フェーズ評価)。構文要素ではない。
 
-### 2.2 NOTE意味論
+### 2.2 Command Alias Resolution
+
+```abnf
+COMMAND_NORMALIZATION ::= alias-resolve
+
+alias-resolve:
+  IF command IN alias-map.keys
+  THEN command := alias-map[command]
+```
+
+**エイリアス機構**:
+
+| 機構     | 説明                               | 例                 |
+| -------- | ---------------------------------- | ------------------ |
+| 定義層   | 意味論レイヤー（構文ではない）     | `/w` → `/write`    |
+| 評価時期 | コマンド評価前の正規化フェーズ     | 構文解析後、実行前 |
+| 効果範囲 | すべてのコマンド動作（完全一致）   | ACCEPTANCE遷移含む |
+| 宣言方法 | プロンプト固有定義セクションで列挙 | Section 6.3など    |
+
+**NOTE**: エイリアスは評価前に正規化され、意味論的差異・副作用の違いは存在しない。エイリアス解決後は元のコマンドと完全一致する動作となる。
+
+**CONSTRAINT**: エイリアスは構文拡張ではなく、意味論層での正規化。ABNF 定義の変更は不要（`token = 1*(ALPHA / DIGIT / "-" / "_")` ですでにカバー済み）。
+
+### 2.3 NOTE意味論
 
 ```bnf
 note-placement ::= [action..] [NOTE:..] [CONSTRAINT:..]
@@ -216,7 +239,7 @@ note-format    ::= 単一段落 | 複数段落(サブトピック区切り)
 
 **CONSTRAINT**: NOTE 単独で制約判断に使用禁止。ACCEPTANCE 遷移・COMMAND 可否判断に NOTE 内容使用禁止。解釈ロジックから分離。
 
-### 2.3 モード遷移
+### 2.4 モード遷移
 
 ```bnf
 ACCEPTANCE   ::= PENDING | ACTIVE              ; 初期=PENDING
@@ -256,22 +279,22 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 | EXECUTE_MODE | idle→proc→idle               | proc→proc                           | ACCEPTANCE=ACTIVE時のみ |
 | 出力制約     | processing時=事実通知のみ    | processing時=説明文・考察・推論禁止 | -                       |
 
-### 2.3.1 状態遷移統合表
+### 2.4.1 状態遷移統合表
 
 統一的な状態遷移ビューを提供するクイックリファレンス。
 
 | モード            | 初期値     | 遷移トリガー | 遷移先     | 定義元 |
 | ----------------- | ---------- | ------------ | ---------- | ------ |
-| ACCEPTANCE        | PENDING    | /write実行   | ACTIVE     | §2.4   |
-| ACCEPTANCE        | ACTIVE     | /write完了   | PENDING    | §2.4   |
-| EXEC_MODE         | idle       | /review開始  | processing | §2.4   |
-| EXEC_MODE         | processing | /review完了  | idle       | §2.10  |
-| generation-status | DRAFT      | 情報不足検出 | INCOMPLETE | §2.11  |
-| generation-status | DRAFT      | 生成完了     | READY      | §2.11  |
+| ACCEPTANCE        | PENDING    | /write実行   | ACTIVE     | §2.5   |
+| ACCEPTANCE        | ACTIVE     | /write完了   | PENDING    | §2.5   |
+| EXEC_MODE         | idle       | /review開始  | processing | §2.5   |
+| EXEC_MODE         | processing | /review完了  | idle       | §2.11  |
+| generation-status | DRAFT      | 情報不足検出 | INCOMPLETE | §2.12  |
+| generation-status | DRAFT      | 生成完了     | READY      | §2.12  |
 
 **NOTE**: 各モードの詳細は定義元セクション参照。
 
-### 2.4 コマンド制約
+### 2.5 コマンド制約
 
 | コマンド | 実行ACCEPTANCE       | 副作用                                | 再入 |
 | -------- | -------------------- | ------------------------------------- | ---- |
@@ -282,9 +305,9 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 | /reset   | *                    | CLEAR :var.. (スコープ内のみ)         | -    |
 | /set     | *                    | SET :var=value (スコープ内上書き許可) | -    |
 
-NOTE: /review, /write = EXEC_MODE 遷移必須、再入禁止。ACCEPTANCE=* はすべての状態で実行可能。
+NOTE: /review, /write = EXEC_MODE 遷移必須、再入禁止。ACCEPTANCE=* はすべての状態で実行可能。エイリアス（例: `/w` → `/write`）は§2.2 で正規化後、元のコマンドと同一の制約を受ける。
 
-### 2.5 変数スコープ
+### 2.6 変数スコープ
 
 | スコープ | ライフタイム | 変数例                | クリア |
 | -------- | ------------ | --------------------- | ------ |
@@ -293,7 +316,7 @@ NOTE: /review, /write = EXEC_MODE 遷移必須、再入禁止。ACCEPTANCE=* は
 
 NOTE: 暗黙可変、初期値=空文字列、再代入=スコープ内上書き。
 
-### 2.6 実行規約
+### 2.7 実行規約
 
 | 項目       | 規則                                      |
 | ---------- | ----------------------------------------- |
@@ -306,7 +329,7 @@ NOTE: 暗黙可変、初期値=空文字列、再代入=スコープ内上書き
 
 NOTE: CLEAR ALL = 全スコープクリア。`DEF /begin THEN CLEAR :buffer -> SET ACCEPTANCE=PENDING END`
 
-### 2.7 INSERT合成
+### 2.8 INSERT合成
 
 ```bnf
 合成順 ::= BEFORE(逆順) → 元BODY → AFTER(順順)
@@ -315,7 +338,7 @@ NOTE: CLEAR ALL = 全スコープクリア。`DEF /begin THEN CLEAR :buffer -> S
 
 NOTE: `INSERT /cmd BEFORE` = 後定義→先実行 | `AFTER` = 先定義→先実行。
 
-### 2.8 イベントシステム
+### 2.9 イベントシステム
 
 | 要素           | 規則                  |
 | -------------- | --------------------- |
@@ -326,7 +349,7 @@ NOTE: `INSERT /cmd BEFORE` = 後定義→先実行 | `AFTER` = 先定義→先�
 
 NOTE: `DEF EVENT ProcessStarted WITH cmd:text THEN END | EMIT ProcessStarted WITH cmd="/review"`
 
-### 2.9 CONSTRAINT
+### 2.10 CONSTRAINT
 
 | 要素        | 用途           | 禁止用途               |
 | ----------- | -------------- | ---------------------- |
@@ -337,7 +360,7 @@ NOTE: `DEF EVENT ProcessStarted WITH cmd:text THEN END | EMIT ProcessStarted WIT
 
 NOTE: PRIORITY = OUTPUT 生成時の優先度表示・複数指摘競合時の重み付けのみ。
 
-### 2.10 エラーハンドリング
+### 2.11 エラーハンドリング
 
 #### 基本処理規則
 
@@ -350,9 +373,9 @@ NOTE: PRIORITY = OUTPUT 生成時の優先度表示・複数指摘競合時の�
 
 NOTE: 未完成=TODO/メモ/箇条のみ検出時。エラー時=SESSION/REVIEW 変数保持。
 
-**NOTE**: 2.10 = 実行時エラー処理 | 2.11 = 事前検証ステータス。INCOMPLETE は generation-status (§2.11)、情報不足は処理エラー (§2.10)。
+**NOTE**: 2.11 = 実行時エラー処理 | 2.12 = 事前検証ステータス。INCOMPLETE は generation-status (§2.12)、情報不足は処理エラー (§2.11)。
 
-### 2.11 記事生成ステータス
+### 2.12 記事生成ステータス
 
 | ステータス | 意味         | 遷移条件     |
 | ---------- | ------------ | ------------ |
@@ -386,7 +409,7 @@ NOTE: 未完成=TODO/メモ/箇条のみ検出時。エラー時=SESSION/REVIEW 
 
 **NOTE**: generation-status vs ACCEPTANCE 分離 - ACCEPTANCE=UI 層 | generation-status=成果物準備層。EXECUTE_MODE(処理層)とも独立。
 
-### 2.12 フォールバック規則
+### 2.13 フォールバック規則
 
 LLM が仕様を守らない場合の縮退動作を定義します。
 
