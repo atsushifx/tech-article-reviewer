@@ -1,8 +1,8 @@
 ---
 title: マクロ構文仕様
 description: 各プロンプトで制御構文を定義するためのマクロ構文を定義する (5層構造)
-version: 1.0.0
-update: 2026-01-23
+version: 1.1.0
+update: 2026-01-27
 architecture: 5-layer (Part 0:Overview / Part 1:Syntax / Part 2:Semantics / Part 3:Policy / Part 4:Macros / Part 5:Heuristics)
 ---
 
@@ -251,11 +251,14 @@ END INPUT
 <mode-def>        ::= "ACCEPTANCE" <mode-spec> *("," <mode-spec>)
 <mode-spec>       ::= <identifier> ["AS" <string-literal>]
 
-<command-def>     ::= "/" <identifier> *<param-spec>
+<command-def>     ::= "/" <identifier> *<param-spec> [<option-spec>]
 <param-spec>      ::= "<" <identifier> ">"
                     / "[" "<" <identifier> ">" ".." "]"
                     / "<" ":" <identifier> ">"
                     / "[" "<" ":" <identifier> ">" ".." "]"
+<option-spec>     ::= "--" <option-name> "=" <option-value>
+<option-name>     ::= <identifier>
+<option-value>    ::= <identifier> / <string-literal>
 
 <var-def>         ::= "VAR" ("SESSION" / "REVIEW") <var-name> ["=" <initial-value>]
 <var-name>        ::= ":" <identifier>
@@ -308,6 +311,7 @@ END INPUT
 <identifier>      ::= (ALPHA / "_") *(ALPHA / DIGIT / "_" / "-" / CJK)
 <value>           ::= <string-literal> / <multiline> / <heredoc> / <number> / <boolean> / <var-name>
 <string-literal>  ::= DQUOTE *(VCHAR / CJK) DQUOTE
+<option>          ::= "--" <identifier> "=" (<identifier> / <string-literal>)
 <multiline>       ::= "|" *(VCHAR / CJK)
 <heredoc>         ::= '""""' *line '""""'
 <number>          ::= 1*DIGIT
@@ -2365,6 +2369,123 @@ RULE constraint_integration:
 END DEF
 ```
 
+### 3.5 Proposal Generation Policy
+
+```DSL
+BEGIN POLICY DEF
+
+RULE proposal_generation_policy:
+  SEMANTICS:
+    Controls automatic generation of concrete improvement proposals from findings
+
+  MODE_DEFINITION:
+    AUTO AS "自動生成 (条件付き)":
+      DESCRIPTION: Generate proposals selectively based on CATEGORY and constraints
+      APPLICABILITY: Production use, safe defaults
+
+    FORCE AS "強制生成 (全件)":
+      DESCRIPTION: Generate proposals for ALL findings, including edge cases
+      APPLICABILITY: Debug mode, comprehensive review
+
+    OFF AS "生成停止":
+      DESCRIPTION: Skip all proposal generation
+      APPLICABILITY: Performance optimization, findings-only mode
+
+  MODE_RESOLUTION:
+    PRECEDENCE:
+      1. Command option (--proposal=<mode>)
+         EXAMPLE: /review --proposal=FORCE
+         SCOPE: Current command invocation only
+         PERSISTENCE: No SESSION variable modification
+
+      2. SESSION variable (:proposal_mode)
+         EXAMPLE: /set :proposal_mode = "OFF"
+         SCOPE: Session lifetime (/exit to clear)
+         PERSISTENCE: Affects all /review invocations until changed
+
+      3. System default (AUTO)
+         FALLBACK: No option, no :proposal_mode set
+         BEHAVIOR: Safe, conservative defaults
+
+  AUTO_MODE_RULES:
+    PRECONDITIONS (ALL required):
+      - ACCEPTANCE = ACTIVE
+      - meta_state = generated
+      - FAIL_FAST = false
+      - VIOLATION not in {STYLE_OVERRIDE, INTENT_DISREGARD}
+
+    CATEGORY_BASED_GENERATION:
+      inaccuracy → ❌ SKIP
+        RATIONALE: Requires factual verification, cannot propose speculative fixes
+
+      inconsistency → ✅ GENERATE
+        ALLOWED_TYPES: [clarification, restructure]
+        RATIONALE: Structural issues have clear resolution paths
+
+      readability → ✅ GENERATE
+        ALLOWED_TYPES: [rephrase]
+        RATIONALE: Expression improvements are mechanical
+
+      unknown → ❌ SKIP
+        RATIONALE: Cannot propose without understanding the issue
+
+    EXCLUSION_RULES:
+      - Finding with VIOLATION label → SKIP
+        RATIONALE: Philosophy violations should not have proposals
+      - Finding with STATUS label → SKIP
+        RATIONALE: Pending clarification, proposal premature
+      - rewrite type → PROHIBITED
+        RATIONALE: Too invasive for AUTO mode
+
+  FORCE_MODE_RULES:
+    GENERATION_POLICY:
+      - Generate proposal for ALL findings
+      - rewrite type PERMITTED
+      - VIOLATION/STATUS findings INCLUDED
+      - Ignores FAIL_FAST state (generates even in rejected state)
+
+    USE_CASE:
+      - Debugging review quality
+      - Comprehensive improvement scenarios
+      - Editor-in-chief deep review
+
+  OFF_MODE_RULES:
+    BEHAVIOR:
+      - proposals array NOT generated
+      - Output contains findings only
+      - Processing performance improved
+
+    USE_CASE:
+      - High-volume batch processing
+      - First-pass screening
+      - Performance-critical scenarios
+
+CONSTRAINT proposal_integrity:
+  REFERENCE_CONSTRAINT:
+    proposals MUST reference existing Finding via 識別子
+    New findings generation in proposals FORBIDDEN
+    VALIDATION: 識別子 format "ref:<finding_identifier>"
+
+  LENGTH_CONSTRAINT:
+    proposals.after field ≤ 1 paragraph
+    DEFINITION: paragraph = single continuous block (max 1 newline)
+
+  TONE_CONSTRAINT:
+    proposals MUST use suggestive tone
+    PERMITTED: "〜します", "〜できます", "〜可能です"
+    PROHIBITED: "〜してください", "〜すべき", "〜しなければならない"
+
+  TYPE_CONSTRAINT:
+    rewrite type PERMITTED only in FORCE mode
+    AUTO mode: {clarification, restructure, rephrase} only
+
+  CARDINALITY_CONSTRAINT:
+    1 Finding → max 1 Proposal
+    Multiple fixes → consolidated into single after field
+
+END DEF
+```
+
 ---
 
 ## Part 4: Common Macros (標準実装)
@@ -3280,6 +3401,109 @@ DEF RejectResult AS "レビュー拒否結果" THEN
       TYPE: string?
       OPTIONAL: true
       DESCRIPTION: resubmission guidance (recommended)
+END
+
+END DEF
+```
+
+#### Proposal Format Schema
+
+```DSL
+BEGIN MACRO DEF
+
+DEF OUTPUT Proposal AS "改善提案" THEN
+  SEMANTICS:
+    Concrete improvement proposal referencing a Finding
+
+  SCHEMA:
+    type: object
+    format: key-value-lines
+    field_order: strict
+    required: [識別子, 種別, before, after, 根拠]
+
+  FIELD 識別子:
+    type: string
+    format: "ref:<finding_identifier>"
+    constraint: "must reference existing Finding"
+    VALIDATION:
+      - Extract <finding_identifier>
+      - Verify Finding with matching 識別子 exists in findings array
+      - Reject if dangling reference
+
+  FIELD 種別:
+    type: enum
+    values: ["clarification", "restructure", "rephrase", "rewrite"]
+    SEMANTICS:
+      clarification AS "明確化":
+        USE_CASE: Ambiguous expressions → explicit alternatives
+        EXAMPLE: "それ" → "前述のデータ構造"
+
+      restructure AS "再構成":
+        USE_CASE: Structural issues → reorganized content
+        EXAMPLE: Paragraph reordering, bullet list conversion
+
+      rephrase AS "言い換え":
+        USE_CASE: Verbose → concise
+        EXAMPLE: "〜することができる" → "〜できる"
+
+      rewrite AS "書き直し":
+        USE_CASE: Sentence-level reconstruction (FORCE mode only)
+        CONSTRAINT: Prohibited in AUTO mode
+
+  FIELD before:
+    type: string
+    format: "quoted excerpt from :buffer"
+    CONSTRAINT:
+      - MUST be exact substring match from :buffer
+      - NO paraphrasing or approximation
+      - Sufficient context for unique identification
+
+  FIELD after:
+    type: string
+    maxLength: 1_paragraph
+    DEFINITION paragraph: single continuous block or 1 newline max
+    tone: suggestive ("〜します", "〜できます")
+    PROHIBITED: imperative ("〜してください", "〜すべき")
+
+  FIELD 根拠:
+    type: string
+    minLength: 1
+    CONTENT: Explanation of WHY this proposal improves the text
+    CONSTRAINT: Must be actionable, not vague
+
+  OUTPUT_ORDER:
+    1: 識別子
+    2: 種別
+    3: before
+    4: after
+    5: 根拠
+
+  SEPARATORS:
+    field_separator: "\n"
+    proposal_separator: "\n---\n"
+
+END
+
+DEF OUTPUT ReviewResult WITH proposals AS "レビュー結果 (提案付き)" THEN
+  EXTENDS: ReviewResult (base definition)
+
+  FIELD proposals:
+    type: array?
+    minItems: 0
+    items: Proposal
+    OPTIONAL: true
+
+  GENERATION_CONDITION:
+    IF effective_proposal_mode != OFF THEN
+      Generate proposals array per policy rules
+    ELSE
+      Omit proposals field
+    END
+
+  CONSTRAINT referential_integrity:
+    EACH Proposal.識別子 MUST match exactly ONE Finding.識別子
+    NO dangling references permitted
+
 END
 
 END DEF
