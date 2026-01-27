@@ -1,8 +1,8 @@
 ---
 title: LLM制御言語仕様 (形式定義版)
 description: プロンプト制御DSL - 形式言語による圧縮仕様 (5層構造)
-version: 1.0.1
-update: 2026-01-24
+version: 1.1.0
+update: 2026-01-27
 architecture: 5-layer (0:Meta / 1:Syntax / 2:Semantics / 3:Policy / 4:Macros / 5:Style)
 ---
 
@@ -99,7 +99,10 @@ END INPUT
 macro       = "DEF" target "THEN" body "END"
 target      = acceptance / command / variable / rule / status
 acceptance  = "ACCEPTANCE" mode-list
-command     = "/" token [params]
+command     = "/" token [params] [option]
+option      = "--" option-name "=" option-value
+option-name = token
+option-value = token
 variable    = "VAR" scope ":" name ["=" value]
 rule        = "RULE" name
 status      = "STATUS" gen-status
@@ -581,6 +584,55 @@ VIOLATION降格 (enum定義: §4.6):
 - フォールバック規則適用時も `:remark` > システムデフォルト
 - CATEGORY→PRIORITY 写像は `:remark` で上書き可能
 
+### 3.5 Proposal Generation Policy
+
+```abnf
+RULE PROPOSAL_GENERATION:
+  MODE ::= AUTO | FORCE | OFF
+  DEFAULT = AUTO
+
+  PRIORITY:
+    1. Command option (--proposal=mode)
+    2. SESSION variable (:proposal_mode)
+    3. System default (AUTO)
+
+  AUTO:
+    CONDITION:
+      - ACCEPTANCE = ACTIVE
+      - meta_state = generated
+      - FAIL_FAST = false
+      - VIOLATION not in {STYLE_OVERRIDE, INTENT_DISREGARD}
+
+    GENERATION_RULES:
+      | CATEGORY      | Generate? | Allowed Types                    |
+      |---------------|-----------|----------------------------------|
+      | inaccuracy    | ❌         | (skip - 事実確認必要)             |
+      | inconsistency | ✅         | clarification, restructure       |
+      | readability   | ✅         | rephrase                         |
+      | unknown       | ❌         | (skip - 判定不能)                 |
+
+    EXCLUSION:
+      - Finding with VIOLATION → skip
+      - Finding with STATUS → skip
+      - rewrite type → prohibited in AUTO
+
+  FORCE:
+    GENERATE proposal for all findings
+    - rewrite type allowed
+    - VIOLATION/STATUS findings included
+    - Ignores FAIL_FAST state
+
+  OFF:
+    SKIP all proposal generation
+
+CONSTRAINT proposal-integrity:
+  - proposals は findings のみを参照可能 (new findings 生成禁止)
+  - proposals の after は最大1パラグラフ
+  - proposals は命令形禁止 (提案文体のみ: "〜します" "〜できます")
+  - rewrite は FORCE のみ許可 (AUTO では禁止)
+  - Finding 1つにつき Proposal 最大1つ
+```
+
 ---
 
 ## 4. 標準マクロ
@@ -776,6 +828,85 @@ RejectResult:
     RECOMMENDATION:
       type: string?
       description: "再提出ガイド (推奨) "
+```
+
+#### Proposal形式 (proposals 配列要素)
+
+```yaml
+Proposal:
+  type: object
+  format: key-value-lines
+  field_order: strict
+  required: [識別子, 種別, before, after, 根拠]
+
+  properties:
+    識別子:
+      type: string
+      format: "ref:<finding_identifier>"
+      constraint: "must reference existing Finding (new findings prohibited)"
+
+    種別:
+      type: enum
+      values: ["clarification", "restructure", "rephrase", "rewrite"]
+      constraint: "rewrite only in FORCE mode"
+
+    before:
+      type: string
+      format: "quoted excerpt from :buffer"
+      constraint: "exact match required"
+
+    after:
+      type: string
+      maxLength: 1_paragraph
+      constraint: "提案文体のみ (例: '〜します', '〜できます')"
+      prohibited: "命令形 (例: '〜してください', '〜すべき')"
+
+    根拠:
+      type: string
+      minLength: 1
+      constraint: "why this proposal improves the text"
+
+  output_order:
+    1: 識別子
+    2: 種別
+    3: before
+    4: after
+    5: 根拠
+
+  separator: "\n"
+  proposal_separator: "\n---\n"
+```
+
+#### ReviewResult Extension
+
+```yaml
+ReviewResult:
+  type: object
+  required: [meta_state, findings]
+
+  properties:
+    meta_state:
+      type: enum
+      values: ["none", "rejected", "generated"]
+
+    findings:
+      type: array
+      minItems: 0
+      items: Finding
+
+    proposals:
+      type: array?
+      minItems: 0
+      items: Proposal
+      condition: "generated only if effective :proposal_mode != OFF"
+      constraint: "each Proposal must reference exactly one Finding"
+
+    summary:
+      type: string?
+
+    open_questions:
+      type: array?
+      items: string
 ```
 
 #### スキーマ検証ルール
