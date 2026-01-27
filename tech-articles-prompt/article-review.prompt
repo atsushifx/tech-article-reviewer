@@ -100,8 +100,11 @@ END INPUT
 macro       = "DEF" target "THEN" body "END"
 target      = acceptance / command / variable / rule / status
 acceptance  = "ACCEPTANCE" mode-list
-command     = "/" token [params]
+command     = "/" token [params] [option]
 variable    = "VAR" scope ":" name ["=" value]
+option      = "--" option-name "=" option-value
+option-name = token
+option-value = token
 rule        = "RULE" name
 status      = "STATUS" gen-status
 
@@ -505,6 +508,55 @@ VIOLATION降格:
 - フォールバック規則適用時も `:remark` > システムデフォルト
 - CATEGORY→PRIORITY 写像は `:remark` で上書き可能
 
+### 3.5 Proposal Generation Policy
+
+```abnf
+RULE PROPOSAL_GENERATION:
+  MODE ::= AUTO | FORCE | OFF
+  DEFAULT = AUTO
+
+  PRIORITY:
+    1. Command option (--proposal=mode)
+    2. SESSION variable (:proposal_mode)
+    3. System default (AUTO)
+
+  AUTO:
+    CONDITION:
+      - ACCEPTANCE = ACTIVE
+      - meta_state = generated
+      - FAIL_FAST = false
+      - VIOLATION not in {STYLE_OVERRIDE, INTENT_DISREGARD}
+
+    GENERATION_RULES:
+      | CATEGORY      | Generate? | Allowed Types                    |
+      |---------------|-----------|----------------------------------|
+      | inaccuracy    | ❌         | (skip - 事実確認必要)             |
+      | inconsistency | ✅         | clarification, restructure       |
+      | readability   | ✅         | rephrase                         |
+      | unknown       | ❌         | (skip - 判定不能)                 |
+
+    EXCLUSION:
+      - Finding with VIOLATION → skip
+      - Finding with STATUS → skip
+      - rewrite type → prohibited in AUTO
+
+  FORCE:
+    GENERATE proposal for all findings
+    - rewrite type allowed
+    - VIOLATION/STATUS findings included
+    - Ignores FAIL_FAST state
+
+  OFF:
+    SKIP all proposal generation
+
+CONSTRAINT proposal-integrity:
+  - proposals は findings のみを参照可能 (new findings 生成禁止)
+  - proposals の after は最大1パラグラフ
+  - proposals は命令形禁止 (提案文体のみ: "〜します" "〜できます")
+  - rewrite は FORCE のみ許可 (AUTO では禁止)
+  - Finding 1つにつき Proposal 最大1つ
+```
+
 ---
 
 ## 4. 標準マクロ
@@ -693,6 +745,87 @@ Finding:
 ```
 
 **CONSTRAINT**: フィールド順序厳守(1→9)。識別子=セッション内一意。VIOLATION付き=自動降格。enum拡張禁止(closed: true)。該当箇所=4.5で定義されたLOCATION形式。meta_state は discriminator として OUTPUT variant を決定。
+
+#### Proposal形式 (proposals 配列要素)
+
+```yaml
+Proposal:
+  type: object
+  format: key-value-lines
+  field_order: strict
+  required: [識別子, 種別, before, after, 根拠]
+
+  properties:
+    識別子:
+      type: string
+      format: "ref:<finding_identifier>"
+      constraint: "must reference existing Finding (new findings prohibited)"
+
+    種別:
+      type: enum
+      values: ["clarification", "restructure", "rephrase", "rewrite"]
+      constraint: "rewrite only in FORCE mode"
+
+    before:
+      type: string
+      format: "quoted excerpt from :buffer"
+      constraint: "exact match required"
+
+    after:
+      type: string
+      maxLength: 1_paragraph
+      constraint: "提案文体のみ (例: '〜します', '〜できます')"
+      prohibited: "命令形 (例: '〜してください', '〜すべき')"
+
+    根拠:
+      type: string
+      minLength: 1
+      constraint: "why this proposal improves the text"
+
+  # Output order
+  output_order:
+    1: 識別子
+    2: 種別
+    3: before
+    4: after
+    5: 根拠
+
+  # Separators
+  separator: "\n"
+  proposal_separator: "\n---\n"
+```
+
+#### ReviewResult Extension
+
+```yaml
+ReviewResult:
+  type: object
+  required: [meta_state, findings]
+
+  properties:
+    meta_state:
+      type: enum
+      values: ["none", "rejected", "generated"]
+
+    findings:
+      type: array
+      minItems: 0
+      items: Finding
+
+    proposals:
+      type: array?
+      minItems: 0
+      items: Proposal
+      condition: "generated only if effective :proposal_mode != OFF"
+      constraint: "each Proposal must reference exactly one Finding"
+
+    summary:
+      type: string?
+
+    open_questions:
+      type: array?
+      items: string
+```
 
 #### CATEGORY/PRIORITY定義
 
@@ -883,13 +1016,14 @@ RULE user authority:
 
 ```abnf
 ; SESSION scope
-VAR SESSION :style   ; スタイルガイド名(デフォルト: "GitHub")
-VAR SESSION :theme   ; 記事テーマ
-VAR SESSION :target  ; 想定読者
-VAR SESSION :goal    ; 記事目標
+VAR SESSION :style        ; スタイルガイド名(デフォルト: "GitHub")
+VAR SESSION :theme        ; 記事テーマ
+VAR SESSION :target       ; 想定読者
+VAR SESSION :goal         ; 記事目標
+VAR SESSION :proposal_mode ; 提案生成モード(デフォルト: "AUTO")
 
 ; REVIEW scope
-VAR REVIEW :appendix ; 技術用語集(Markdown箇条書き形式)
+VAR REVIEW :appendix      ; 技術用語集(Markdown箇条書き形式)
 ```
 
 **NOTE**: CLEARBY - SESSION: /exit | REVIEW: /begin。
@@ -897,7 +1031,9 @@ VAR REVIEW :appendix ; 技術用語集(Markdown箇条書き形式)
 ### 6.3 固有コマンド
 
 ```abnf
-/review [<section>] ::= レビュー実行(全体または特定セクション)
+/review [<section>] [--proposal=<mode>] ::= レビュー実行(全体または特定セクション)
+  <section> = セクション見出し (省略時=全体)
+  <mode>    = AUTO | FORCE | OFF (省略時=:proposal_mode値を使用)
 /show <section>     ::= :reviewから<section>を出力
 /quickfix <fix>     ::= レビュー指示1を<fix>に適用、簡易出力
 /appendix           ::= :appendixをMarkdown箇条書きで出力
@@ -1045,6 +1181,51 @@ Issue ID ::= <section>-<nnn>  ; section=小文字英数字, nnn=001-999
 
 **NOTE**: デフォルトスタイル=GitHub。優先順位: レビュー指示1(文章表現)>スタイルガイド。許容例外: 文末感嘆符(カジュアル表現), コロン(説明・列挙導入)。
 
+#### レビュー指示補足: 提案生成制御
+
+**モード決定ロジック**:
+
+| 優先度 | ソース                      | 設定方法                          |
+| ------ | --------------------------- | --------------------------------- |
+| 1      | コマンドフラグ              | /review --proposal=FORCE          |
+| 2      | SESSION変数                 | /set :proposal_mode = "OFF"       |
+| 3      | システムデフォルト          | AUTO (初期値)                     |
+
+**モード別動作**:
+
+| モード | 生成条件                                      | 生成種別                       | FAIL_FAST 時 |
+| ------ | --------------------------------------------- | ------------------------------ | ------------ |
+| AUTO   | CATEGORY/VIOLATION/STATUS 条件に基づく選択的生成 | clarification, restructure, rephrase | ❌ 生成しない |
+| FORCE  | 全 findings に対して生成                       | + rewrite 許可                 | ✅ 生成する    |
+| OFF    | 生成しない                                    | -                              | ❌ 生成しない |
+
+**AUTO モード生成テーブル**:
+
+| Finding 属性           | 生成判定 | 許可種別                    |
+| ---------------------- | -------- | --------------------------- |
+| CATEGORY=inaccuracy    | ❌        | (skip - 事実確認必要)        |
+| CATEGORY=inconsistency | ✅        | clarification, restructure  |
+| CATEGORY=readability   | ✅        | rephrase                    |
+| CATEGORY=unknown       | ❌        | (skip - 判定不能)            |
+| VIOLATION 付き         | ❌        | (skip - ポリシー違反)        |
+| STATUS 付き            | ❌        | (skip - 判断保留)            |
+
+**種別選択ガイドライン**:
+
+| 種別          | 使用場面                              | 例                                      |
+| ------------- | ------------------------------------- | --------------------------------------- |
+| clarification | 不明瞭な表現を明確化                  | "それ" → 具体的な名詞に置き換え         |
+| restructure   | 構造的問題を再構成                    | パラグラフ順序変更、箇条書き化          |
+| rephrase      | 冗長表現を簡潔化                      | "〜することができる" → "〜できる"       |
+| rewrite       | 全面書き直し (FORCE のみ)             | センテンス全体の再構築                  |
+
+**CONSTRAINT**:
+
+- `after` フィールドは最大1パラグラフ (改行なし or 改行1つまで)
+- 命令形禁止: "〜してください" "〜すべき" → "〜します" "〜できます"
+- 新規指摘禁止: proposals は findings に記載済みの問題のみ対象
+- 1 Finding につき 1 Proposal: 複数の修正案がある場合は FORCE モードで別途生成を検討
+
 ### 6.7 プロンプト共通変数
 
 | 変数   | スコープ | 用途                               | デフォルト |
@@ -1059,6 +1240,7 @@ Issue ID ::= <section>-<nnn>  ; section=小文字英数字, nnn=001-999
 BEGIN INPUT
 /set :role = | - 技術ブログ編集者 - 日本語校閲担当 - 文章構成編集者 - 可読性・論理展開専門編集者 - 辞書サイト活用校正担当 - 技術情報リサーチャ - Q&Aサイト精通技術者 - ニュースサイト精通リサーチャー
 /set :style = "GitHub"
+/set :proposal_mode = "AUTO"
 /set :dictionary = | - WebLio - WebLio英和和英 - IT用語e-words
 /set :techblog = | - Qiita - Zenn - Docswell - SpeakerDeck
 /set :tech_qa = | - Quora - StackOverflow
@@ -1088,7 +1270,8 @@ output-phase   ::= ACCEPTANCE=PENDING (再実行可能)
 | 1    | 入力検証         | EMIT ProcessStarted -> :buffer検証、必須変数確認              |
 | 2    | :role基準適用    | AIペルソナに基づく品質基準決定                                |
 | 3    | レビュー指示適用 | 指示1(文章表現)->指示2(文章構成)->指示3(スタイルガイド) 順適用 |
-| 4    | 改善点抽出       | 改善点特定、修正案作成                                         |
+| 4    | 改善点抽出       | 改善点特定 (Finding 生成)                                      |
+| 4.5  | 提案生成         | effective :proposal_mode に基づく Proposal 生成 (条件付き)     |
 | 5    | 結果整理         | 行番号順ソート                                                 |
 | 6    | 保存・出力       | :review保存、:appendix保存 (全体時)、出力形式整形              |
 | 7    | 完了             | EMIT ProcessCompleted -> ACCEPTANCE=PENDING                         |
