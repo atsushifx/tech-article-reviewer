@@ -1149,7 +1149,12 @@ BEGIN INPUT
 - <https://www.oxfordlearnersdictionaries.com/> (参照目的: 英語表記の基準)
 - <https://www.dictionary.com/> (参照目的: 英語表記の基準)
 
-/set :link = ""
+/set :link = |
+- <https://docs.github.com/ja/actions/how-tos/reuse-automations/reuse-workflows> (ワークフローを再利用する - GitHub公式ドキュメント)
+- <https://docs.github.com/ja/actions/concepts/security> (GitHub Actionsのセキュリティ - GitHub公式ドキュメント)
+- <https://docs.github.com/ja/actions/reference/security/secure-use> (セキュリティで保護された使用に関するリファレンス - GitHub公式ドキュメント)
+- <https://github.com/suzuki-shunsuke/ghalint> (ghalint - GitHub Actions Linter)
+- <https://github.com/atsushifx/.github> (実装例リポジトリ)
 /set :remark = ""
 END INPUT
 ```
