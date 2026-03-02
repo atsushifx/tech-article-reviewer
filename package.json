@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "bash ./scripts/prepare.sh",
+    "prepare": "bash ./scripts/setup-dev-env.sh",
     "format:prompts": "bash ./scripts/prompt-formatter.sh",
     "check:spells": "pnpm exec cspell  --config .vscode/cspell.json --cache --cache-location .cache/cspell/cSpellCache",
     "lint:text": "textlint --config ./configs/textlintrc.yaml --cache --cache-location .cache/textlint-cache/textlintCache ",
