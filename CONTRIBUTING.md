@@ -122,16 +122,16 @@ This project accepts the following types of Issues:
 
 ### Tech Stack
 
-| Category            | Tool         | Description                                      |
-| ------------------- | ------------ | ------------------------------------------------ |
-| **Package Manager** | pnpm         | Fast and efficient package management            |
-| **Formatter**       | dprint       | 120 character width, 2 spaces, single quotes     |
+| Category            | Tool         | Description                                       |
+|---------------------|--------------|---------------------------------------------------|
+| **Package Manager** | pnpm         | Fast and efficient package management             |
+| **Formatter**       | dprint       | 120 character width, 2 spaces, single quotes      |
 | **Linters**         | textlint     | Japanese technical documentation style validation |
-|                     | markdownlint | Markdown syntax validation                       |
-|                     | ls-lint      | Filename convention validation                   |
-| **Security**        | gitleaks     | Git repository secret scanning                   |
-|                     | secretlint   | Text file secret detection                       |
-| **Git Hooks**       | lefthook     | Including automatic commit message generation    |
+|                     | markdownlint | Markdown syntax validation                        |
+|                     | ls-lint      | Filename convention validation                    |
+| **Security**        | gitleaks     | Git repository secret scanning                    |
+|                     | secretlint   | Text file secret detection                        |
+| **Git Hooks**       | lefthook     | Including automatic commit message generation     |
 
 ### Coding Conventions
 
