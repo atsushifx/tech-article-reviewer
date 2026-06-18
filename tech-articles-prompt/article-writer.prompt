@@ -12,6 +12,8 @@ meta:
     - Copyright (c) 2025 atsushifx <https://github.com/atsushifx/>
 ---
 
+<!-- markdownlint-disable line-length -->
+
 ## Overview (概要)
 
 ## 0. メタ記法
@@ -61,7 +63,7 @@ block-type = DSL / MACRO / RULE / INPUT / OUTPUT
 
 ### 0.2 最小使用例
 
-```
+```text
 BEGIN INPUT
   SET :buffer = """
 技術記事の内容をここに記述します。
@@ -253,14 +255,14 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 
 ### 2.5 コマンド制約
 
-| コマンド         | ACCEPTANCE要求 | 副作用                                              | 再入 |
-| ---------------- | -------------- | --------------------------------------------------- | ---- |
-| /begin           | *              | CLEAR :buffer                                       | 可   |
-| /end             | *              | :buffer確定                                         | -    |
-| /write, /w [section] | PENDING    | ACCEPTANCE=ACTIVE (一時), EXEC_MODE: idle→proc→idle | 禁止 |
-| /exit            | *              | CLEAR ALL, EXEC_MODE=idle                           | -    |
-| /reset           | *              | CLEAR :var.. (スコープ内のみ)                       | -    |
-| /set             | *              | SET :var=value (スコープ内上書き許可)               | -    |
+| コマンド             | ACCEPTANCE要求 | 副作用                                              | 再入 |
+| -------------------- | -------------- | --------------------------------------------------- | ---- |
+| /begin               | *              | CLEAR :buffer                                       | 可   |
+| /end                 | *              | :buffer確定                                         | -    |
+| /write, /w [section] | PENDING        | ACCEPTANCE=ACTIVE (一時), EXEC_MODE: idle→proc→idle | 禁止 |
+| /exit                | *              | CLEAR ALL, EXEC_MODE=idle                           | -    |
+| /reset               | *              | CLEAR :var.. (スコープ内のみ)                       | -    |
+| /set                 | *              | SET :var=value (スコープ内上書き許可)               | -    |
 
 **NOTE**: /write, /w = ACCEPTANCE一時ACTIVE化、EXEC_MODE遷移必須、再入禁止。他コマンドはACCEPTANCE状態不問。
 
@@ -451,9 +453,10 @@ RULE FAIL_FAST:
 
 **判定基準 (形式化・検出方法)**:
 
-| 条件                | 検出方法                                          | 閾値                   | 根拠             |
-| ------------------- | ------------------------------------------------- | ---------------------- | ---------------- |
-| structural_collapse | 見出し階層飛び: `^#{1,6}` regex, 必須section欠落  | gap>1 OR 概要/結論なし | 構造破綻         |
+| 条件                | 検出方法                                         | 閾値                   | 根拠     |
+| ------------------- | ------------------------------------------------ | ---------------------- | -------- |
+| structural_collapse | 見出し階層飛び: `^#{1,6}` regex, 必須section欠落 | gap>1 OR 概要/結論なし | 構造破綻 |
+
 | technical_fatality  | コードブロック未閉: `` ``` `` ペア不整合, API誤用 | unclosed>0 OR errors≥3 | 実行不可能       |
 | unreadability       | 主題文欠落率, 接続詞密度                          | 欠落率>50% OR 接続<10% | 意図伝達不可     |
 | insufficient_length | Unicode文字数 (コードブロック除外)                | <500文字               | レビュー対象不足 |
@@ -539,14 +542,14 @@ END INPUT
 
 ### 4.2 標準コマンド
 
-| コマンド            | 動作                        | 値形式           |
-| ------------------- | --------------------------- | ---------------- |
-| /begin              | CLEAR :buffer               | -                |
-| /end                | :buffer確定                 | -                |
-| /write, /w [section] | ACCEPTANCE=ACTIVE(一時)    | -                |
-| /exit               | CLEAR ALL                   | -                |
-| /reset <:var..>     | CLEAR :var..                | -                |
-| /set <:var>=<value> | SET :var=value              | "text"\|\|\|"""" |
+| コマンド             | 動作                    | 値形式           |
+| -------------------- | ----------------------- | ---------------- |
+| /begin               | CLEAR :buffer           | -                |
+| /end                 | :buffer確定             | -                |
+| /write, /w [section] | ACCEPTANCE=ACTIVE(一時) | -                |
+| /exit                | CLEAR ALL               | -                |
+| /reset `<:var..>`    | CLEAR :var..            | -                |
+| /set `:var`=`value`  | SET :var=value          | "text"\|\|\|"""" |
 
 **NOTE**: `/w` は `/write` の完全なエイリアス。意味論的差異・副作用の違いは存在しない。
 
@@ -657,7 +660,7 @@ RejectResult:
 
 #### Finding形式 (順序固定)
 
-```
+```text
 指摘種別: 修正必須|注意喚起|判断保留
 CATEGORY: readability|inconsistency|inaccuracy|unknown
 PRIORITY: A|B|C|D|E
@@ -692,14 +695,14 @@ PRIORITY: A|B|C|D|E
 
 #### VIOLATION/STATUS定義
 
-| ラベル                       | タイプ | 効果                 | PRIORITY |
-| ---------------------------- | ------ | -------------------- | -------- |
-| VIOLATION: STYLE_OVERRIDE    | 違反   | 指摘をDに降格        | D        |
-| VIOLATION: INTENT_DISREGARD  | 違反   | ユーザー確認要求     | D        |
-| VIOLATION: SUBJECTIVE_BIAS   | 違反   | 指摘をEに降格        | E        |
-| VIOLATION: SCOPE_EXCESS      | 違反   | 範囲逸脱通知         | D        |
-| STATUS: QUESTION_REQUIRED    | 状態   | レビュー保留         | -        |
-| STATUS: CLARIFICATION_NEEDED | 状態   | 明確化要求           | -        |
+| ラベル                       | タイプ | 効果             | PRIORITY |
+| ---------------------------- | ------ | ---------------- | -------- |
+| VIOLATION: STYLE_OVERRIDE    | 違反   | 指摘をDに降格    | D        |
+| VIOLATION: INTENT_DISREGARD  | 違反   | ユーザー確認要求 | D        |
+| VIOLATION: SUBJECTIVE_BIAS   | 違反   | 指摘をEに降格    | E        |
+| VIOLATION: SCOPE_EXCESS      | 違反   | 範囲逸脱通知     | D        |
+| STATUS: QUESTION_REQUIRED    | 状態   | レビュー保留     | -        |
+| STATUS: CLARIFICATION_NEEDED | 状態   | 明確化要求       | -        |
 
 **CONSTRAINT**: enum拡張禁止 (closed: true) 。CATEGORY→PRIORITY写像は`:remark`で上書き可。VIOLATION付き指摘は自動降格、STATUS付きは保留状態。
 
@@ -709,22 +712,22 @@ PRIORITY: A|B|C|D|E
 
 ### 5.1 命名規則
 
-| 要素                     | 型           | 制約       | スタイル              | 例                   |
-| ------------------------ | ------------ | ---------- | --------------------- | -------------------- |
-| ACCEPTANCE/CMD/VAR/EVENT | `<ascii-id>` | 英数字-_   | snake_case/PascalCase | cmd, :buf, ModeChg   |
-| FIELD/RULE               | `<label>`    | 日本語許可 | -                     | 重要度, セクションID |
+| 要素                     | 型           | 制約       | スタイル              | 例                           |
+| ------------------------ | ------------ | ---------- | --------------------- | ---------------------------- |
+| ACCEPTANCE/CMD/VAR/EVENT | `<ascii-id>` | 英数字-_   | snake_case/PascalCase | cmd, :buf, ModeChg           |
+| FIELD/RULE               | `<label>`    | 日本語許可 | -                     | 重要度, セクションID         |
 | AS                       | -            | 表示名     | 日本語推奨            | ACCEPTANCE cmd AS "コマンド" |
 
 **NOTE**: コード参照=識別子 | LLM出力=AS優先。
 
 ### 5.2 コーディングスタイル
 
-| 項目     | 規則                                    |
-| -------- | --------------------------------------- |
-| 形式     | インライン (`->`, 120文字) \| ブロック  |
-| EXECUTE  | 1文=1責務、ACCEPTANCE遷移・SET明示      |
-| 制約     | CONSTRAINT/EVENT形式化                  |
-| 出力構造 | トレーサビリティ・再現性保証            |
+| 項目     | 規則                                   |
+| -------- | -------------------------------------- |
+| 形式     | インライン (`->`, 120文字) \| ブロック |
+| EXECUTE  | 1文=1責務、ACCEPTANCE遷移・SET明示     |
+| 制約     | CONSTRAINT/EVENT形式化                 |
+| 出力構造 | トレーサビリティ・再現性保証           |
 
 ### 5.3 EXECUTE 運用ガイドライン
 
@@ -807,10 +810,10 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 
 **ACCEPTANCE PRINCIPLE**: 合否評価ではなく受付・処理境界。PENDING=沈黙・蓄積のみ | ACTIVE=/write時のみ一時化。
 
-| 状態    | :buffer | 制約                                     | 遷移                 |
-| ------- | ------- | ---------------------------------------- | -------------------- |
+| 状態    | :buffer | 制約                                           | 遷移                |
+| ------- | ------- | ---------------------------------------------- | ------------------- |
 | PENDING | 構築中  | 解析禁止・沈黙維持・/begin,/end,/set,/exit受付 | /write→ACTIVE(一時) |
-| ACTIVE  | 確定    | /write実行中のみ出力許可                 | 完了→PENDING         |
+| ACTIVE  | 確定    | /write実行中のみ出力許可                       | 完了→PENDING        |
 
 **CONSTRAINT silent accumulation**: PENDING時=:buffer蓄積のみ、解析・要約・応答禁止。すべての処理は明示コマンドでのみ開始。LLMの自発動作=主導権侵害。
 
@@ -823,11 +826,11 @@ generation-status ::= DRAFT | INCOMPLETE | READY
 meta_state ::= none | rejected | generated  ; OUTPUT variant discriminator
 ```
 
-| ステータス | 意味                   | 遷移条件        |
-| ---------- | ---------------------- | --------------- |
-| DRAFT      | 生成開始状態           | /write 実行開始 |
+| ステータス | 意味                   | 遷移条件         |
+| ---------- | ---------------------- | ---------------- |
+| DRAFT      | 生成開始状態           | /write 実行開始  |
 | INCOMPLETE | 情報不足、追加入力必要 | 必須情報欠落検出 |
-| READY      | 生成完了、OUTPUT 許可  | 記事生成完了    |
+| READY      | 生成完了、OUTPUT 許可  | 記事生成完了     |
 
 **meta_state 協調** (判別共用体制御):
 
@@ -866,20 +869,20 @@ VAR REVIEW :article  ; 生成記事
 /write [<section>] ::= 記事生成実行(全体または特定セクション)
 ```
 
-| フェーズ | アクション                                          |
-| -------- | --------------------------------------------------- |
-| 前処理   | EXEC_MODE=processing, generation-status=DRAFT       |
-| 入力検証 | :buffer検証(定義・非空・50文字以上)                 |
-| 執筆     | 執筆指示適用、記事生成                              |
+| フェーズ | アクション                                              |
+| -------- | ------------------------------------------------------- |
+| 前処理   | EXEC_MODE=processing, generation-status=DRAFT           |
+| 入力検証 | :buffer検証(定義・非空・50文字以上)                     |
+| 執筆     | 執筆指示適用、記事生成                                  |
 | 後処理   | generation-status更新(READY/INCOMPLETE), EXEC_MODE=idle |
 
 **CONSTRAINT 入力検証**:
 
-| 項目        | 条件             | 失敗時アクション                                                |
-| ----------- | ---------------- | --------------------------------------------------------------- |
+| 項目        | 条件             | 失敗時アクション                                                     |
+| ----------- | ---------------- | -------------------------------------------------------------------- |
 | :buffer定義 | defined(:buffer) | generation-status=INCOMPLETE, EMIT ProcessFailed, ACCEPTANCE=PENDING |
 | :buffer非空 | length > 0       | generation-status=INCOMPLETE, EMIT ProcessFailed, ACCEPTANCE=PENDING |
-| 文字数      | length >= 50     | 警告("推奨: 50文字以上")                                        |
+| 文字数      | length >= 50     | 警告("推奨: 50文字以上")                                             |
 
 **NOTE**: 検証失敗時=INCOMPLETE設定→OUTPUT禁止。/write=記事生成唯一コマンド(状態機械単純化、予測可能性保証)。
 
@@ -901,21 +904,21 @@ VAR REVIEW :article  ; 生成記事
 
 #### 執筆指示1: 基本構成・文章表現
 
-| Pri | 観点             | ルール                                                    |
-| --- | ---------------- | --------------------------------------------------------- |
-| S   | 下書き展開       | :buffer内容をベースにセクション詳細化                     |
-| S   | 参考記事学習     | zenn.dev/atsushifx最新12記事スタイル学習(不可時=一般構成) |
-| S   | 技術的正確性     | :link参照で事実・仕様検証                                 |
-| S   | 変数反映         | :theme/:goal/:target/:role/:remark反映                    |
-| S   | ASCII使用        | 英数字・記号=半角(読みやすさ優先時は全角可)               |
-| S   | 固有表現保持     | "Enjoy!", "Happy Hacking!", "atsushifx です"=変更禁止     |
-| A   | 基本文体         | ですます調基調(口語的表現適宜可)                          |
-| A   | トーンバランス   | 技術性⇔カジュアルブログ                                   |
-| A   | 人称表現禁止     | 「私は」「あなたは」不使用                                |
-| A   | 指示表現禁止     | 「～しましょう」不使用(提案表現可)                        |
-| A   | 箇条書き簡潔化   | 体言止め                                                  |
-| B   | テキスト図解     | ASCII等で視覚化                                           |
-| B   | mermaid.js図     | フローチャート・シーケンス図作成                          |
+| Pri | 観点           | ルール                                                    |
+| --- | -------------- | --------------------------------------------------------- |
+| S   | 下書き展開     | :buffer内容をベースにセクション詳細化                     |
+| S   | 参考記事学習   | zenn.dev/atsushifx最新12記事スタイル学習(不可時=一般構成) |
+| S   | 技術的正確性   | :link参照で事実・仕様検証                                 |
+| S   | 変数反映       | :theme/:goal/:target/:role/:remark反映                    |
+| S   | ASCII使用      | 英数字・記号=半角(読みやすさ優先時は全角可)               |
+| S   | 固有表現保持   | "Enjoy!", "Happy Hacking!", "atsushifx です"=変更禁止     |
+| A   | 基本文体       | ですます調基調(口語的表現適宜可)                          |
+| A   | トーンバランス | 技術性⇔カジュアルブログ                                   |
+| A   | 人称表現禁止   | 「私は」「あなたは」不使用                                |
+| A   | 指示表現禁止   | 「～しましょう」不使用(提案表現可)                        |
+| A   | 箇条書き簡潔化 | 体言止め                                                  |
+| B   | テキスト図解   | ASCII等で視覚化                                           |
+| B   | mermaid.js図   | フローチャート・シーケンス図作成                          |
 
 **NOTE**: 参考記事学習=抽象的模倣指針。禁止例: 人称(❌「私は～」→⭕「推奨」), 指示(❌「～しましょう」→⭕「～します」)。
 
@@ -959,15 +962,15 @@ output-phase   ::= ACCEPTANCE=PENDING (再入力可能)
 
 ### A.2 執筆処理手順
 
-| 順序 | フェーズ     | 動作                                              |
-| ---- | ------------ | ------------------------------------------------- |
-| 1    | 入力検証     | EMIT ProcessStarted -> :buffer検証、必須変数確認  |
+| 順序 | フェーズ     | 動作                                                |
+| ---- | ------------ | --------------------------------------------------- |
+| 1    | 入力検証     | EMIT ProcessStarted -> :buffer検証、必須変数確認    |
 | 2    | 参考情報確認 | zenn.dev/atsushifx最新12記事スタイル学習、:link検証 |
-| 3    | 執筆実行     | 重要度(S/A/B)適用、:buffer展開、セクション詳細化 |
-| 4    | 部分作成     | セクション指定時=該当セクションのみ処理           |
-| 5    | 保存・出力   | :article保存                                      |
-| 6    | 完了         | EMIT ProcessCompleted -> ACCEPTANCE=PENDING       |
-| 7    | エラー処理   | EMIT ProcessFailed -> ACCEPTANCE=PENDING          |
+| 3    | 執筆実行     | 重要度(S/A/B)適用、:buffer展開、セクション詳細化    |
+| 4    | 部分作成     | セクション指定時=該当セクションのみ処理             |
+| 5    | 保存・出力   | :article保存                                        |
+| 6    | 完了         | EMIT ProcessCompleted -> ACCEPTANCE=PENDING         |
+| 7    | エラー処理   | EMIT ProcessFailed -> ACCEPTANCE=PENDING            |
 
 **NOTE**: 利用可能コマンド=`/write [セクション]`, `/begin`。
 
