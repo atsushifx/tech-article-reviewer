@@ -16,10 +16,10 @@ architecture: 5-layer (Part 0:Overview / Part 1:Syntax / Part 2:Semantics / Part
 
 **設計原則**:
 
-1. **統一形式**: `DEF ... THEN ... END` (すべてのマクロ)
-2. **四層構造**: Syntax (BNF 文法) / Semantics (形式意味論) / Common Macros (標準実装) / Heuristics (スタイル指針)
-3. **識別子**: ASCII 限定(`<ascii-id>`) / 日本語許可(`<label>`)
-4. **自己記述**: Part 2/3 は Part 1 のマクロ構文で意味論と実装を定義
+1. 統一形式: `DEF ... THEN ... END` (すべてのマクロ)
+2. 四層構造: Syntax (BNF 文法) / Semantics (形式意味論) / Common Macros (標準実装) / Heuristics (スタイル指針)
+3. 識別子: ASCII 限定(`<ascii-id>`) / 日本語許可(`<label>`)
+4. 自己記述: Part 2/3 は Part 1 のマクロ構文で意味論と実装を定義
 
 **NOTE**: 本 DSL は実行を目的としない。LLM との認識共有を目的とする。
 
@@ -61,9 +61,9 @@ block-type = DSL / MACRO / RULE / INPUT / OUTPUT
 
 **Backbone BNF の設計原則**:
 
-1. **列挙しない**: コマンド名や変数名を列挙せず、形式だけ示す (例: `command = "/" identifier`)
-2. **body を定義しない**: `<opaque>` で内部構造を隠蔽し、中身に口を出さない
-3. **分岐条件だけ残す**: 拡張ポイント (target) は明示し、言語の重心を示す
+1. 列挙しない: コマンド名や変数名を列挙せず、形式だけ示す (例: `command = "/" identifier`)
+2. body を定義しない: `<opaque>` で内部構造を隠蔽し、中身に口を出さない
+3. 分岐条件だけ残す: 拡張ポイント (target) は明示し、言語の重心を示す
 
 **NOTE: Backbone BNF の不変性宣言**:
 
@@ -92,7 +92,7 @@ Backbone BNF は「姿勢定義」であり、次のような目的はありま�
 ; Fail-fast: 5条件 (構造崩壊、技術的致命性、読解不能、文字数不足、未完成)
 ```
 
-詳細は[3.1 Review Philosophy](#31-review-philosophy)、[3.4 制約規則統合](#34-制約規則統合)を参照してください。
+詳細は [3.1 Review Philosophy](#31-review-philosophy)、[3.4 制約規則統合](#34-制約規則統合) を参照してください。
 
 ## 目次
 
@@ -137,6 +137,7 @@ Backbone BNF は「姿勢定義」であり、次のような目的はありま�
   - [3.2 Fail-Fast Policy](#32-fail-fast-policy)
   - [3.3 Priority Conversion](#33-priority-conversion)
   - [3.4 制約規則統合](#34-制約規則統合)
+  - [3.5 Proposal Generation Policy](#35-proposal-generation-policy)
 - [Part 4: Common Macros (標準実装)](#part-4-common-macros-標準実装)
   - [共通モード構造](#共通モード構造)
   - [入力セクション構造](#入力セクション構造)
@@ -148,6 +149,7 @@ Backbone BNF は「姿勢定義」であり、次のような目的はありま�
   - [OUTPUT Structure Extension AS "出力構造化の拡張"](#output-structure-extension-as-出力構造化の拡張)
     - [Simple Definition to Detailed Schema Correspondence AS "簡易定義と詳細スキーマの対応関係"](#simple-definition-to-detailed-schema-correspondence-as-簡易定義と詳細スキーマの対応関係)
     - [OUTPUT Format Schema AS "OUTPUT形式スキーマ (厳密定義)"](#output-format-schema-as-output形式スキーマ-厳密定義)
+    - [Proposal Format Schema](#proposal-format-schema)
     - [Schema Validation Rules AS "スキーマ検証ルール"](#schema-validation-rules-as-スキーマ検証ルール)
     - [Output Format Example AS "出力形式例 (スキーマ準拠)"](#output-format-example-as-出力形式例-スキーマ準拠)
     - [OUTPUT Definition Cross-Reference AS "OUTPUT定義のクロスリファレンス"](#output-definition-cross-reference-as-output定義のクロスリファレンス)
@@ -411,10 +413,10 @@ END DEF
 
 **重要な特性**:
 
-1. **構文的除外**: BEGIN...END DEF 内は LLM の校閲・レビュー処理から**除外**
-2. **定義登録**: 内容は「定義」として登録・解釈されるが、**文章としては評価されない**
-3. **指摘禁止**: 誤字脱字・曖昧表現を含め**一切の指摘を禁止**
-4. **スコープ**: ブロック外の Markdown 説明文のみが校閲対象
+1. 構文的除外: BEGIN...END DEF 内は LLM の校閲・レビュー処理から除外
+2. 定義登録: 内容は「定義」として登録・解釈されるが、文章としては評価されない
+3. 指摘禁止: 誤字脱字・曖昧表現を含め一切の指摘を禁止
+4. スコープ: ブロック外の Markdown 説明文のみが校閲対象
 
 **RULE との違い**:
 

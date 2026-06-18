@@ -8,8 +8,6 @@
 
 ## Files
 globs:
-  - "**/*.md"
-  - "**/*.prompt"
 
 ## Ignores
 # ignore gitignore
