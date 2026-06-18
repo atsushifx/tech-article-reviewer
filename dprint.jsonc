@@ -14,14 +14,18 @@
   "newLineKind": "lf",
   // Include/Exclude patterns
   "includes": [
+    // language files
     "**/*.js",
     "**/*.ts",
+    // config files
     "**/*.json",
     "**/*.jsonc",
     "**/*.yml",
     "**/*.yaml",
+    "**/*.toml",
     // Documents
     "**/*.md",
+    "**/*.prompt",
   ],
   "excludes": [
     "**/node_modules/**",
@@ -41,6 +45,7 @@
     "https://plugins.dprint.dev/json-0.21.0.wasm",
     "https://plugins.dprint.dev/markdown-0.20.0.wasm",
     "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.5.1.wasm",
+    "https://plugins.dprint.dev/toml-0.7.0.wasm",
   ],
   // Language-specific settings
   "typescript": {
@@ -54,6 +59,9 @@
   },
   "json": {},
   "markdown": {
+    "associations": [
+      "**/*.prompt",
+    ],
     "emphasisKind": "asterisks",
   },
   "yaml": {},
