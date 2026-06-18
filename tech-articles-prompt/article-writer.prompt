@@ -457,10 +457,10 @@ RULE FAIL_FAST:
 | ------------------- | ------------------------------------------------ | ---------------------- | -------- |
 | structural_collapse | 見出し階層飛び: `^#{1,6}` regex, 必須section欠落 | gap>1 OR 概要/結論なし | 構造破綻 |
 
-| technical_fatality  | コードブロック未閉: `` ``` `` ペア不整合, API誤用 | unclosed>0 OR errors≥3 | 実行不可能       |
-| unreadability       | 主題文欠落率, 接続詞密度                          | 欠落率>50% OR 接続<10% | 意図伝達不可     |
-| insufficient_length | Unicode文字数 (コードブロック除外)                | <500文字               | レビュー対象不足 |
-| incomplete_content  | TODO/TBDマーカー: `/TODO\|FIXME\|TBD\|WIP/`, 箇条 | ≥1個 OR 比率>30%       | 未完成           |
+| technical_fatality | コードブロック未閉: `` ``` `` ペア不整合, API誤用 | unclosed>0 OR errors≥3 | 実行不可能 |
+| unreadability | 主題文欠落率, 接続詞密度 | 欠落率>50% OR 接続<10% | 意図伝達不可 |
+| insufficient_length | Unicode文字数 (コードブロック除外) | <500文字 | レビュー対象不足 |
+| incomplete_content | TODO/TBDマーカー: `/TODO\|FIXME\|TBD\|WIP/`, 箇条 | ≥1個 OR 比率>30% | 未完成 |
 
 **NOTE**: 閾値はヒューリスティック。建設的な再提出ガイド必須。拒否=「前提条件未達」(「改善余地なし」でない)。
 
