@@ -1,0 +1,14 @@
+// src: .vscode/settings.json
+// @(#): vscode settings for this workspace
+//
+// Copyright (c) 2025- atsushifx <https://github.com/atsushifx>
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+{
+  "files.associations": {
+    "*.prompt": "markdown"
+  },
+  // textlint
+  "textlint.configPath": "./configs/textlintrc.yaml"
+}
