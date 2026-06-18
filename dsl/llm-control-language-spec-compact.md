@@ -49,13 +49,13 @@ meta-block = "BEGIN" block-type "DEF" <opaque> "END" "DEF"
 block-type = DSL / MACRO / RULE / INPUT / OUTPUT
 ```
 
-**設計原則**:
+設計原則:
 
-1. **列挙しない**: コマンド名・変数名を列挙せず、形式だけ示す
-2. **body 定義しない**: `<opaque>` で内部構造隠蔽、中身に口出さない
-3. **分岐条件のみ残す**: 拡張ポイント (target) 明示で言語重心を示す
+1. 列挙しない: コマンド名・変数名を列挙せず、形式だけ示す
+2. body 定義しない: `<opaque>` で内部構造隠蔽、中身に口出さない
+3. 分岐条件のみ残す: 拡張ポイント (target) 明示で言語重心を示す
 
-**NOTE**: `<opaque>` =「この領域は LLM の自然言語理解に委ねる」。Backbone BNF は LLM との概念共有用、パーサー生成用ではない。
+NOTE: `<opaque>` =「この領域は LLM の自然言語理解に委ねる」。Backbone BNF は LLM との概念共有用、パーサー生成用ではない。
 
 ### 0.2 最小使用例
 
@@ -80,7 +80,7 @@ END INPUT
   根拠: 技術文書では明瞭さが重要です
 ```
 
-**NOTE**: 最小構成は `BEGIN INPUT` → コマンド実行 → `OUTPUT` の 3 ステップ。各詳細は後続セクションで定義。
+NOTE: 最小構成は `BEGIN INPUT` → コマンド実行 → `OUTPUT` の 3 ステップ。各詳細は後続セクションで定義。
 
 ---
 
@@ -149,14 +149,14 @@ payload     = field ":" type-name *("," field ":" type-name)
 field       = 1*(ALPHA / DIGIT / "_")
 ```
 
-**NOTE**:
+NOTE:
 
-- ABNF 形式により BNF から **60% 圧縮** (構造的明瞭性維持)
+- ABNF 形式により BNF から 60% 圧縮 (構造的明瞭性維持)
 - `ALPHA`, `DIGIT`, `VCHAR`, `DQUOTE` は RFC 5234 定義基本要素
 - chain (`->`) は 2-3 個推奨、120 文字制限厳守
 - 詳細構文 (phase-table, valid-table 等) は Section 2 以降に委譲
 
-**CONSTRAINT**:
+CONSTRAINT:
 
 - ABNF は意味的完全性持つ最小規則セット
 - 拡張構文は Extension セクション集約
@@ -174,7 +174,7 @@ field       = 1*(ALPHA / DIGIT / "_")
 | INPUT      | 型定義記述       | 構文解析段階            | 入力変数のスキーマ定義    |
 | OUTPUT     | 出力形式定義記述 | 構文解析段階            | OUTPUT 構造のスキーマ定義 |
 
-**NOTE**: DSL = 構文的除外 (コメント扱い) | MACRO/RULE/INPUT/OUTPUT = 解釈層での除外。メタブロックは実行フローに影響しない。
+NOTE: DSL = 構文的除外 (コメント扱い) | MACRO/RULE/INPUT/OUTPUT = 解釈層での除外。メタブロックは実行フローに影響しない。
 
 ---
 
@@ -203,7 +203,7 @@ alias-resolve:
   THEN command := alias-map[command]
 ```
 
-**エイリアス機構**:
+エイリアス機構:
 
 | 機構     | 説明                               | 例                 |
 | -------- | ---------------------------------- | ------------------ |
@@ -212,9 +212,9 @@ alias-resolve:
 | 効果範囲 | すべてのコマンド動作（完全一致）   | ACCEPTANCE遷移含む |
 | 宣言方法 | プロンプト固有定義セクションで列挙 | Section 6.3など    |
 
-**NOTE**: エイリアスは評価前に正規化され、意味論的差異・副作用の違いは存在しない。エイリアス解決後は元のコマンドと完全一致する動作となる。
+NOTE: エイリアスは評価前に正規化され、意味論的差異・副作用の違いは存在しない。エイリアス解決後は元のコマンドと完全一致する動作となる。
 
-**CONSTRAINT**: エイリアスは構文拡張ではなく、意味論層での正規化。ABNF 定義の変更は不要（`token = 1*(ALPHA / DIGIT / "-" / "_")` ですでにカバー済み）。
+CONSTRAINT: エイリアスは構文拡張ではなく、意味論層での正規化。ABNF 定義の変更は不要（`token = 1*(ALPHA / DIGIT / "-" / "_")` ですでにカバー済み）。
 
 ### 2.3 NOTE意味論
 
@@ -232,15 +232,14 @@ note-format    ::= 単一段落 | 複数段落(サブトピック区切り)
 | 用途       | 人間向け説明のみ                  |
 | CONSTRAINT | NOTE根拠の挙動変更=未定義動作     |
 | スコープ   | 直前要素補足 or 後続要素前提説明  |
-| 複数段落   | サブトピック区切り(`              |
 
-**NOTE 用途分類**:
+NOTE 用途分類:
 
-1. **説明的 NOTE**: 補足説明のみ (評価に影響なし)
-2. **制約的 NOTE**: CONSTRAINT の補足 (単独評価なし)
-3. **例示的 NOTE**: 使用例・デバッグ情報
+1. 説明的 NOTE: 補足説明のみ (評価に影響なし)
+2. 制約的 NOTE: CONSTRAINT の補足 (単独評価なし)
+3. 例示的 NOTE: 使用例・デバッグ情報
 
-**CONSTRAINT**: NOTE 単独で制約判断に使用禁止。ACCEPTANCE 遷移・COMMAND 可否判断に NOTE 内容使用禁止。解釈ロジックから分離。
+CONSTRAINT: NOTE 単独で制約判断に使用禁止。ACCEPTANCE 遷移・COMMAND 可否判断に NOTE 内容使用禁止。解釈ロジックから分離。
 
 ### 2.4 モード遷移
 
@@ -250,7 +249,7 @@ EXECUTE_MODE ::= idle | processing             ; 初期=idle
 generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 ```
 
-**ACCEPTANCE PRINCIPLE** (主導権原則):
+ACCEPTANCE PRINCIPLE (主導権原則):
 
 | 原則                       | 意味                                         |
 | -------------------------- | -------------------------------------------- |
@@ -262,9 +261,9 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 | 制御ではなく主導権の宣言   | LLM の自発的動作は主導権侵害                 |
 | すべて明示的コマンド開始   | 自発的処理の開始禁止                         |
 
-**CONSTRAINT**: ACCEPTANCE は「制御」でなく「主導権の宣言」。LLM の自発的動作=主導権侵害。処理は明示的コマンドのみで開始。
+CONSTRAINT: ACCEPTANCE は「制御」でなく「主導権の宣言」。LLM の自発的動作=主導権侵害。処理は明示的コマンドのみで開始。
 
-**層分離原則**:
+層分離原則:
 
 | レイヤー     | 変数              | スコープ             | 遷移条件                 | 責務           |
 | ------------ | ----------------- | -------------------- | ------------------------ | -------------- |
@@ -272,9 +271,9 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 | 処理層       | EXECUTE_MODE      | idle/processing      | SESSION_PHASE=reviewとき | 処理実行制御   |
 | 成果物準備層 | generation-status | DRAFT/INCOMPLETE/... | 情報充足判定             | OUTPUT生成可否 |
 
-**NOTE**: SESSION_PHASE (UI 層) | EXECUTE_MODE (処理層) | generation-status (成果物準備層) は独立。EXECUTE_MODE は SESSION_PHASE=review 時のみ遷移可能。
+NOTE: SESSION_PHASE (UI 層) | EXECUTE_MODE (処理層) | generation-status (成果物準備層) は独立。EXECUTE_MODE は SESSION_PHASE=review 時のみ遷移可能。
 
-**遷移規則**:
+遷移規則:
 
 | モード       | 許可遷移                     | 禁止遷移                            | 条件                    |
 | ------------ | ---------------------------- | ----------------------------------- | ----------------------- |
@@ -295,7 +294,7 @@ generation-status ::= DRAFT | INCOMPLETE | READY ; 初期=DRAFT
 | generation-status | DRAFT      | 情報不足検出 | INCOMPLETE | §2.12  |
 | generation-status | DRAFT      | 生成完了     | READY      | §2.12  |
 
-**NOTE**: 各モードの詳細は定義元セクション参照。
+NOTE: 各モードの詳細は定義元セクション参照。
 
 ### 2.5 コマンド制約
 
@@ -376,7 +375,7 @@ NOTE: PRIORITY = OUTPUT 生成時の優先度表示・複数指摘競合時の�
 
 NOTE: 未完成=TODO/メモ/箇条のみ検出時。エラー時=SESSION/REVIEW 変数保持。
 
-**NOTE**: 2.11 = 実行時エラー処理 | 2.12 = 事前検証ステータス。INCOMPLETE は generation-status (§2.12)、情報不足は処理エラー (§2.11)。
+NOTE: 2.11 = 実行時エラー処理 | 2.12 = 事前検証ステータス。INCOMPLETE は generation-status (§2.12)、情報不足は処理エラー (§2.11)。
 
 ### 2.12 記事生成ステータス
 
@@ -386,7 +385,7 @@ NOTE: 未完成=TODO/メモ/箇条のみ検出時。エラー時=SESSION/REVIEW 
 | INCOMPLETE | 情報不足     | 必須情報欠落 |
 | READY      | 生成完了     | 記事生成完了 |
 
-**meta_state 協調** (判別共用体制御):
+meta_state 協調 (判別共用体制御):
 
 | meta_state | generation-status | OUTPUT variant | 使用ケース     |
 | ---------- | ----------------- | -------------- | -------------- |
@@ -395,7 +394,7 @@ NOTE: 未完成=TODO/メモ/箇条のみ検出時。エラー時=SESSION/REVIEW 
 | generated  | READY             | ReviewResult   | 正常レビュー   |
 | generated  | READY             | ErrorResult    | 処理エラー     |
 
-**遷移規則**:
+遷移規則:
 
 | 遷移             | トリガー     | 効果                       |
 | ---------------- | ------------ | -------------------------- |
@@ -403,14 +402,14 @@ NOTE: 未完成=TODO/メモ/箇条のみ検出時。エラー時=SESSION/REVIEW 
 | DRAFT→READY      | 生成完了     | OUTPUT許可                 |
 | INCOMPLETE→input | 再入力要求   | 追加情報入力               |
 
-**CONSTRAINT**:
+CONSTRAINT:
 
 - OUTPUT は generation-status=READY かつ meta_state=generated/rejected の場合のみ生成
 - generation-status=INCOMPLETE 時は OUTPUT 生成禁止、ACCEPTANCE=PENDING 遷移促進
 - meta_state は OUTPUT 判別共用体の discriminator として機能
 - generation-status は宣言的制約 (実行ディレクティブでない)
 
-**NOTE**: generation-status vs ACCEPTANCE 分離 - ACCEPTANCE=UI 層 | generation-status=成果物準備層。EXECUTE_MODE(処理層)とも独立。
+NOTE: generation-status vs ACCEPTANCE 分離 - ACCEPTANCE=UI 層 | generation-status=成果物準備層。EXECUTE_MODE(処理層)とも独立。
 
 ### 2.13 フォールバック規則
 
@@ -424,7 +423,7 @@ LLM が仕様を守らない場合の縮退動作を定義します。
 | パラメータ欠落     | デフォルト値使用（全セクション対象） | 現状維持           |
 | コマンド構文エラー | エラー通知 → `/begin` 再入力促進     | ACCEPTANCE=PENDING |
 
-**フォールバック例**:
+フォールバック例:
 
 <!-- cspell:words reviw -->
 
@@ -433,7 +432,7 @@ LLM が仕様を守らない場合の縮退動作を定義します。
 /review Secton1   → Section1 を全セクション対象として処理
 ```
 
-**NOTE**: 縮退時は警告メッセージ出力。ユーザー修正を促すが処理は継続。
+NOTE: 縮退時は警告メッセージ出力。ユーザー修正を促すが処理は継続。
 
 #### 変数解決失敗時
 
@@ -443,14 +442,14 @@ LLM が仕様を守らない場合の縮退動作を定義します。
 | 変数型不一致 | 文字列として扱う               | 型変換試行             |
 | スコープ違反 | SESSION スコープで再検索       | 最大スコープにフォール |
 
-**フォールバック例**:
+フォールバック例:
 
-```COBOL
+```bash
 :undefined_var  → "[UNRESOLVED:undefined_var]"
 :buffer (未設定) → "[UNRESOLVED:buffer] (入力なし)"
 ```
 
-**NOTE**: `[UNRESOLVED:*]` マーカーは OUTPUT に含まれる。デバッグ・診断用途。
+NOTE: `[UNRESOLVED:*]` マーカーは OUTPUT に含まれる。デバッグ・診断用途。
 
 #### 状態遷移違反時
 
@@ -460,7 +459,7 @@ LLM が仕様を守らない場合の縮退動作を定義します。
 | EXEC_MODE 再入      | 実行拒否 → エラー通知         | 現状維持        |
 | 禁止遷移試行        | 遷移キャンセル → 警告出力     | 現状維持        |
 
-**NOTE**: 状態遷移違反は重大エラー。処理中断し、ユーザー介入を要求。
+NOTE: 状態遷移違反は重大エラー。処理中断し、ユーザー介入を要求。
 
 #### OUTPUT 生成失敗時
 
@@ -470,7 +469,7 @@ LLM が仕様を守らない場合の縮退動作を定義します。
 | CATEGORY 判定不能            | `[CATEGORY:unknown]` 付与、PRIORITY=B | デフォルト分類使用  |
 | PRIORITY 算出失敗            | PRIORITY=B (中優先度)                 | 保守的優先度設定    |
 
-**NOTE**: 判定不能時は保守的設定（PRIORITY=B）を採用。過小評価より過大評価を優先。
+NOTE: 判定不能時は保守的設定（PRIORITY=B）を採用。過小評価より過大評価を優先。
 
 #### 制約違反時の処理順序
 
@@ -479,9 +478,9 @@ LLM が仕様を守らない場合の縮退動作を定義します。
 3. フォールバック規則適用
 4. 保守的設定採用
 
-**CONSTRAINT**: フォールバック規則適用時も `:remark` > システムデフォルトの優先順位を維持。
+CONSTRAINT: フォールバック規則適用時も `:remark` > システムデフォルトの優先順位を維持。
 
-**NOTE**: フォールバック規則は本セクションで一度のみ定義。
+NOTE: フォールバック規則は本セクションで一度のみ定義。
 
 ---
 
@@ -498,7 +497,7 @@ PHILOSOPHY REVIEW:
   VIOLATION: STYLE_OVERRIDE→D | INTENT_DISREGARD→D+CONFIRM | SUBJECTIVE_BIAS→E | SCOPE_EXCESS→D
 ```
 
-**介入レベル判定**:
+介入レベル判定:
 
 | レベル | 判定条件         | 根拠要件               | PRIORITY |
 | ------ | ---------------- | ---------------------- | -------- |
@@ -511,13 +510,13 @@ PHILOSOPHY REVIEW:
 ```abnf
 RULE FAIL_FAST:
   IF structural_collapse → INCOMPLETE + "構造崩壊"
-  IF technical_fatality → SKIP + "技術的致命傷"
+  IF technical_fatality → INCOMPLETE + "技術的致命傷"
   IF unreadability → INCOMPLETE + "可読性未確立"
   IF insufficient_length → INCOMPLETE + "文章量不足"
   IF incomplete_content → INCOMPLETE + "未完成"
 ```
 
-**判定基準 (形式化・検出方法)**:
+判定基準 (形式化・検出方法):
 
 | 条件                | 検出方法                                          | 閾値                   | 根拠             |
 | ------------------- | ------------------------------------------------- | ---------------------- | ---------------- |
@@ -527,7 +526,7 @@ RULE FAIL_FAST:
 | insufficient_length | Unicode文字数 (コードブロック除外)                | <500文字               | レビュー対象不足 |
 | incomplete_content  | TODO/TBDマーカー: `/TODO\|FIXME\|TBD\|WIP/`, 箇条 | ≥1個 OR 比率>30%       | 未完成           |
 
-**NOTE**: 閾値はヒューリスティック。建設的な再提出ガイド必須。拒否=「前提条件未達」(「改善余地なし」でない)。
+NOTE: 閾値はヒューリスティック。建設的な再提出ガイド必須。拒否=「前提条件未達」(「改善余地なし」でない)。
 
 ### 3.3 Priority Conversion
 
@@ -545,31 +544,31 @@ VIOLATION降格 (enum定義: §4.6):
   SCOPE_EXCESS → force D
 ```
 
-**優先順位**: `:remark` > VIOLATION 降格 > CATEGORY 写像 > デフォルト。
+優先順位: `:remark` > VIOLATION 降格 > CATEGORY 写像 > デフォルト。
 
 ### 3.4 制約規則統合
 
-**Philosophy enforcement**:
+Philosophy enforcement:
 
 - 違反ラベル付き指摘は自動降格
 - LLM は違反を自己検出し、違反に応じたラベルの付与が必須
 - レビュー出力は哲学原則に従う
 - `:remark` で明示的に指定された場合のみ例外を許可
 
-**ACCEPTANCE principle** (**→ See Section 2.3 for full ACCEPTANCE definition**):
+ACCEPTANCE principle: See §2.4 for full ACCEPTANCE definition.
 
-**Fail-fast constraints**:
+Fail-fast constraints:
 
 - 建設的な再提出ガイドを必ず提供
 - レビュー拒否は「レビュー前提条件未達」を意味する (「改善の余地なし」ではない)
 
-**Output generation guard**:
+Output generation guard:
 
 - OUTPUT は generation-status=READY かつ meta_state=generated/rejected の場合のみ生成
 - INCOMPLETE 状態は OUTPUT 生成禁止、ACCEPTANCE=PENDING 遷移促進
 - 生成系プロンプトで適用、レビュー系では不要
 
-**Enum constraints**:
+Enum constraints:
 
 - CATEGORY/PRIORITY の enum 拡張は禁止 (closed: true)
 - VIOLATION/STATUS の enum 拡張は禁止 (closed: true)
@@ -578,7 +577,7 @@ VIOLATION降格 (enum定義: §4.6):
 - 同一指摘に VIOLATION+STATUS の両方付与可能、効果は累積
 - `unknown` カテゴリは判定不能時のフォールバック専用、通常使用禁止
 
-**Override mechanism**:
+Override mechanism:
 
 - `:remark` はすべての規則を上書き可能
 - フォールバック規則適用時も `:remark` > システムデフォルト
@@ -945,7 +944,7 @@ PRIORITY: C
 VIOLATION: STYLE_OVERRIDE
 ```
 
-**NOTE**:
+NOTE:
 
 - フィールド順序は厳密に 1→9 の順 (上記スキーマの output_order に従う)
 - 指摘間の区切りは `\n---\n` (3行：空行、ハイフン 3つ、空行)
@@ -1004,7 +1003,7 @@ CATEGORY:
 | readability   | 可読性     | C                           | 冗長表現、構造改善            |
 | unknown       | 判定不能   | B (保守的設定)              | フォールバック専用            |
 
-**CONSTRAINT**:
+CONSTRAINT:
 
 - CATEGORY/PRIORITY の enum 拡張は禁止 (closed: true)
 - CATEGORY→PRIORITY 写像は `:remark` で上書き可能
@@ -1047,14 +1046,14 @@ STATUS:
 | STATUS: QUESTION_REQUIRED    | 状態   | 追加情報要求、レビュー保留 | -        | 意図不明とき               |
 | STATUS: CLARIFICATION_NEEDED | 状態   | 明確化要求、レビュー保留   | -        | 情報不足時                 |
 
-**CONSTRAINT**:
+CONSTRAINT:
 
 - VIOLATION/STATUS の enum 拡張は禁止 (closed: true)
 - VIOLATION 付き指摘は自動的に PRIORITY 降格 (side_effects 定義に従う)
 - STATUS 付き指摘はレビュー保留状態、ユーザー応答待機
 - 同一指摘に VIOLATION+STATUS の両方付与可能、効果は累積
 
-**CONSTRAINT OUTPUT generation guard**:
+CONSTRAINT OUTPUT generation guard:
 
 - OUTPUT は generation-status=READY かつ meta_state=generated/rejected の場合のみ生成
 - generation-status=INCOMPLETE 時は OUTPUT 生成禁止、ACCEPTANCE=PENDING 遷移促進
@@ -1130,13 +1129,13 @@ EXECUTE 文は操作的ディレクティブ (operational directive) であり�
 | flow_control_leak | EXECUTE で通常フロー制御を迂回 | COMMAND による明示的制御     | EXECUTE は例外処理のみ、通常フローは COMMAND |
 | execution_assumed | Appendix 記載=実行と誤解       | 「参照のみ・実行禁止」を明記 | EXECUTE は列挙手順のみ (実行は LLM 判断)     |
 
-**CONSTRAINT**:
+CONSTRAINT:
 
 - EXECUTE 文内での ACCEPTANCE 遷移は禁止 (明示的 SET で記述)
 - EXECUTE は宣言的記述、LLM への指針提供が目的 (強制実行ではない)
 - EXECUTE 文は Appendix の手順を「参照」、自動実行は行わない
 
-**NOTE**: EXECUTE 文の過剰使用は DSL の宣言的性質を損なう。通常フロー制御は COMMAND/EVENT で表現。
+NOTE: EXECUTE 文の過剰使用は DSL の宣言的性質を損なう。通常フロー制御は COMMAND/EVENT で表現。
 
 ### 5.4 出力CONSTRAINT
 
@@ -1170,20 +1169,20 @@ EVENT handler は異常系復旧専用であり、通常フロー制御に使用
 | implicit_state_change | 状態変更の暗黙化             | SET 文による明示的状態変更              |
 | handler_chaining      | handler 連鎖によるフロー構築 | COMMAND 連鎖                            |
 
-**許可用途** (復旧のみ):
+許可用途 (復旧のみ):
 
 | 許可パターン             | 用途                       | 例                                               |
 | ------------------------ | -------------------------- | ------------------------------------------------ |
 | abnormal_termination_rec | 異常終了からの復旧         | `ON ProcessFailed DO SET ACCEPTANCE=PENDING END` |
 | error_rollback           | エラー時の状態ロールバック | `ON ValidationError DO CLEAR :buffer END`        |
 
-**CONSTRAINT**:
+CONSTRAINT:
 
 - EVENT handler 内での SESSION_PHASE 遷移は復旧目的のみ許可
 - 通常フロー制御・条件分岐・遷移規則迂回は COMMAND で表現
 - EVENT は「通知」、handler は「復旧」のみの責務
 
-**NOTE**: EVENT handler の過剰使用は DSL の宣言的性質を損なう。通常フロー制御は COMMAND で明示的に表現。
+NOTE: EVENT handler の過剰使用は DSL の宣言的性質を損なう。通常フロー制御は COMMAND で明示的に表現。
 
 ---
 
