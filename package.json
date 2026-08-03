@@ -1,15 +1,21 @@
 {
   "name": "tech-article-reviewer",
+  "version": "1.0.0",
+  "description": "Tech Blog articles writer/reviewer prompts",
+  "author": "atsushifx",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {
     "prepare": "bash ./scripts/setup-dev-env.sh",
-    "format:prompts": "dprint fmt **/*.prompt",
-    "check:spells": "pnpm exec cspell  --config .vscode/cspell.json --cache --cache-location .cache/cspell/cSpellCache",
+    "scan:secrets": "concurrently \"betterleaks protect --config ./configs/betterleaks.toml\" \"secretlint --secretlintrc ./configs/secretlint.config.yaml .\"",
+
+    "check:dprint": "dprint check",
+    "format:dprint": "dprint fmt",
+
+    "lint:spells": "cspell --config .vscode/cspell.json --cache --cache-location .cache/cspell/cSpellCache ",
     "lint:text": "textlint --config ./configs/textlintrc.yaml --cache --cache-location .cache/textlint-cache/textlintCache ",
-    "lint:prompt": "markdownlint --config ./configs/.markdownlint-cli2.yaml **/*.prompt",
     "lint:markdown": "markdownlint --config ./configs/.markdownlint-cli2.yaml **/*.md",
-    "lint:filename": "pnpm exec ls-lint --config ./configs/ls-lint.yaml ",
-    "lint:secrets": "secretlint --secretlintrc ./configs/secretlint.config.yaml --secretlintignore .gitignore --maskSecrets **/*"
+    "lint:prompt": "markdownlint --config ./configs/.markdownlint-cli2.yaml **/*.prompt"
   }
 }
