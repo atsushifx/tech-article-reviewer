@@ -7,11 +7,12 @@
 # https://opensource.org/licenses/MIT
 
 ## Files
-globs:
+# globs:
 
 ## Ignores
 # ignore gitignore
 gitignore: true
+
 # ignore files globs
 ignores:
   - ".serena/**"
