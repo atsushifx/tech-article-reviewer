@@ -36,12 +36,6 @@ rules:
       space:
         - alphabets
         - numbers
-    ja-space-around-code:
-      before: true
-      after: true
-    ja-space-around-link:
-      before: true
-      after: true
   common-misspellings: true
   no-mixed-zenkaku-and-hankaku-alphabet: true
   "@proofdict/proofdict":
