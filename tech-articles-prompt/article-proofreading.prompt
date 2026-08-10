@@ -1207,8 +1207,17 @@ BEGIN INPUT
 - <https://www.dictionary.com/> (参照目的: 英語表記の基準)
 
 /set :link = |
+- <https://github.com/aglabo/chatlog-exporter> (chatlog-exporter - 実装リポジトリ)
+- <https://aglabo.github.io/chatlog-exporter/ja/user-guide/install> (インストール手順 - 公式ドキュメント)
+- <https://aglabo.github.io/chatlog-exporter/ja/user-guide/quickstart> (クイックスタート - 公式ドキュメント)
+- <https://aglabo.github.io/chatlog-exporter/ja/user-guide/basic-workflow> (基本ワークフロー - 公式ドキュメント)
+- <https://cli.github.com/manual/gh_skill> (gh skill - GitHub 公式 CLI マニュアル)
 
 /set :remark = |
+- コマンド名・オプション・スキル名は :link の一次情報と照合し、表記が一致しない箇所を指摘する
+- 5 つのスキル名 (export / filter / classify / normalize / set-frontmatter) の表記揺れを確認する
+- 製品名は chatlog-exporter、Claude Code、Obsidian、Deno、Git Bash の表記で統一する
+- :link に記載のない仕様・コマンドは「要出典」として扱う
 
 END INPUT
 ```

@@ -1130,15 +1130,26 @@ BEGIN INPUT
 - 超一流の編集者
 
 /set :theme = |
+chatlog-exporter による AI エージェントのチャットログ資産化 - セッションログを Markdown に書き出し、分類・整形して Obsidian のナレッジベースへ取り込むまでのツール紹介
 
 /set :target = |
+Claude Code をはじめとする AI コーディングエージェントを日常的に使っており、対話ログが手元に溜まる一方で読み返す手段がなく、知見として活用できていないエンジニア。Markdown と CLI の基本操作は理解済みの読者。
 
 /set :goal = |
-
+chatlog-exporter がチャットログの「ノイズ除去・分類・整形」を担う Claude Code スキル群であることを理解し、インストールから /setup-chatlogs の初期設定、export から set-frontmatter に至る推奨ワークフローまでを把握して、自分の環境で試せる状態になる。
 
 /set :link = |
+- <https://github.com/aglabo/chatlog-exporter> (chatlog-exporter - 実装リポジトリ)
+- <https://aglabo.github.io/chatlog-exporter/ja/user-guide/install> (インストール手順 - 公式ドキュメント)
+- <https://aglabo.github.io/chatlog-exporter/ja/user-guide/quickstart> (クイックスタート - 公式ドキュメント)
+- <https://aglabo.github.io/chatlog-exporter/ja/user-guide/basic-workflow> (基本ワークフロー - 公式ドキュメント)
+- <https://cli.github.com/manual/gh_skill> (gh skill - GitHub 公式 CLI マニュアル)
 
 /set :remark = |
+- 5 つのスキルは推奨実行順 (export / filter / classify / normalize / set-frontmatter) に沿って紹介する
+- 前提条件 (Claude Code CLI・Deno・bash、Windows は Git Bash) を導入手順の前に明示する
+- gh のエージェントスキル対応がプレビュー段階である点に触れる
+- コマンド構文・オプションは創作せず、:link の一次情報で確認できる範囲に留める
 
 END INPUT
 ```
