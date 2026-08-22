@@ -2,7 +2,7 @@
 title: LLM制御言語仕様 (形式定義版)
 description: プロンプト制御DSL - 形式言語による圧縮仕様 (5層構造)
 version: 1.1.0
-update: 2026-01-27
+update: 2026-08-23
 architecture: 5-layer (0:Meta / 1:Syntax / 2:Semantics / 3:Policy / 4:Macros / 5:Style)
 ---
 
@@ -685,10 +685,12 @@ NOTE: スコープ内上書き可。SESSION=/exit, REVIEW=/begin。
 ```bnf
 LOCATION ::= セクションID.ノード種別.文章インデックス
 セクションID ::= 見出し[番号]
-ノード種別 ::= paragraph | list_item | heading
-文章インデックス ::= node[n].sentence[m]
+ノード種別 ::= paragraph | list_item | heading | table | figure
+文章インデックス ::= node[n].sentence[m] | node[n]
 文区切り ::= 。 | ？ | ！ | :
 ```
+
+**NOTE**: `table` `figure` は表・図の全体を 1 単位として指す。セル・ノードラベルを個別には指さず、文章インデックスは `node[n]` 形式のみを使う。
 
 ### 4.6 出力構造
 

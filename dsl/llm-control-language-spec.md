@@ -2,7 +2,7 @@
 title: マクロ構文仕様
 description: 各プロンプトで制御構文を定義するためのマクロ構文を定義する (5層構造)
 version: 1.1.0
-update: 2026-01-27
+update: 2026-08-23
 architecture: 5-layer (Part 0:Overview / Part 1:Syntax / Part 2:Semantics / Part 3:Policy / Part 4:Macros / Part 5:Heuristics)
 ---
 
@@ -301,8 +301,8 @@ END INPUT
 
 ; --- Location 型 ---
 <section-id>      ::= <identifier> ["[" <number> "]"]
-<node-index>      ::= <node-type> "[" <number> "]" ".sentence[" <number> "]"
-<node-type>       ::= "paragraph" / "list_item" / "heading"
+<node-index>      ::= <node-type> "[" <number> "]" [".sentence[" <number> "]"]
+<node-type>       ::= "paragraph" / "list_item" / "heading" / "table" / "figure"
 
 ; --- その他ステートメント ---
 <level-desc>      ::= <identifier> ":" *VCHAR
@@ -1484,7 +1484,7 @@ DEF OUTPUT レビュー結果 WITH LOCATION THEN
 
     EFFECT:
       AUTO_ADD: "location" field according to LOCATION definition
-      FORMAT: "section_name.paragraph[N].sentence[M]"
+      FORMAT: "section_name.node_type[N][.sentence[M]]"
 
     REFERENCE:
       LOCATION definition details: "### 共通文章位置" (line 1909)
@@ -1498,7 +1498,7 @@ END
 ; LOCATION: 文書位置識別構造 (FIELD/RULE で要素定義)
 DEF LOCATION 文章位置 THEN
   FIELD section_id: 見出し[番号]
-  FIELD node_type: paragraph | list_item
+  FIELD node_type: paragraph | list_item | heading | table | figure
   RULE sentence_delimiter: 句点"。" | "？" | "！" | ":"
 END
 
@@ -3097,12 +3097,12 @@ DEF LOCATION 文章位置 AS "document location structure" THEN
 
     FIELD node_type: <node-type>
       DESCRIPTION: document node type
-      VALUES: {paragraph, list_item, heading}
+      VALUES: {paragraph, list_item, heading, table, figure}
 
     FIELD text_index: <node-index>
       DESCRIPTION: hierarchical node and sentence index
-      FORMAT: node_type "[" number "]" ".sentence[" number "]"
-      EXAMPLE: "paragraph[0].sentence[1]", "list_item[3].sentence[0]"
+      FORMAT: node_type "[" number "]" [".sentence[" number "]"]
+      EXAMPLE: "paragraph[0].sentence[1]", "list_item[3].sentence[0]", "table[0]", "figure[1]"
 
   RULES:
     RULE section_id:
@@ -3110,12 +3110,13 @@ DEF LOCATION 文章位置 AS "document location structure" THEN
       SEMANTICS: section name with optional numeric index
 
     RULE node_type:
-      SYNTAX: paragraph | list_item | heading
+      SYNTAX: paragraph | list_item | heading | table | figure
       SEMANTICS: type of document node
 
     RULE text_index:
-      SYNTAX: <node-type> "[" <番号> "]" ".sentence[" <番号> "]"
-      SEMANTICS: zero-indexed node and sentence positions
+      SYNTAX: <node-type> "[" <番号> "]" [".sentence[" <番号> "]"]
+      SEMANTICS: zero-indexed node and sentence positions;
+                 table and figure address the whole element and omit the sentence position
 
     RULE sentence_delimiter:
       SYNTAX: 句点"。" | "？" | "！" | ":"
@@ -3284,7 +3285,7 @@ DEF Finding AS "個別指摘 (順序固定・必須フィールド明示)" THEN
       FORMAT: LOCATION
       DESCRIPTION: automatically added by WITH LOCATION modifier
       REFERENCE: LOCATION definition (line 2912-2957)
-      FORMAT_SPECIFICATION: "section_name.paragraph[N].sentence[M]"
+      FORMAT_SPECIFICATION: "section_name.node_type[N][.sentence[M]]"
       EXAMPLES:
         - "導入.paragraph[0].sentence[1]"
         - "技術詳細[2].list_item[3].sentence[0]"
