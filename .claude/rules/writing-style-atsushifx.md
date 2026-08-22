@@ -1,7 +1,8 @@
 <!-- cspell:words uutils hatena ryuzee infoq cpplover mizchi itmedia zdnet gihyo -->
+<!-- textlint-disable
+  ja-technical-writing/ja-no-weak-phrase 本ルールは「使わない表現」を引用例として掲載するため、弱い表現の検査を無効化する
+  -->
 <!-- markdownlint-disable line-length -->
-<!-- textlint-disable ja-technical-writing/ja-no-weak-phrase -->
-<!-- 本ルールは「使わない表現」を引用例として掲載するため、弱い表現の検査を無効化する -->
 
 # atsushifx の文章スタイル
 
