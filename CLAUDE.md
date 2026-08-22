@@ -10,8 +10,8 @@
 
 ## コア原則
 
-- プロンプトファイルは、基本的に変更しない: `tech-articles-prompt/*.prompt` は本プロジェクトのコア資産
-- 設定は `configs/` に集約: ルート直下ではなく `configs/` ディレクトリ内に配置
+- プロンプトファイルは、基本的に変更しない: `tech-articles-prompt/*.prompt`は本プロジェクトのコア資産
+- 設定は`configs/`に集約: ルート直下ではなく`configs/`ディレクトリ内に配置
 - LF 改行必須: Windows 環境でも LF 改行 (dprint/EditorConfig で強制)
 - シークレット検出は 2層: gitleaks + secretlint の両方でチェック
 
@@ -62,7 +62,7 @@ git config --global core.longpaths true
 
 ## プロンプトシステム
 
-本プロジェクトのコアは `tech-articles-prompt/` ディレクトリ内のプロンプトファイルです。
+本プロジェクトのコアは`tech-articles-prompt/`ディレクトリ内のプロンプトファイルです。
 
 ### 4段階モード構造
 
@@ -72,7 +72,7 @@ git config --global core.longpaths true
 
 ### 主要コマンド
 
-- `/begin`: 入力モード開始 (`:buffer` クリア)
+- `/begin`: 入力モード開始 (`:buffer`クリア)
 - `/end`: 待機モード移行 (入力完了)
 - `/review`: レビュー/校閲開始 (待機モードから)
 - `/write`: 記事生成開始 (待機モードから)
@@ -89,9 +89,10 @@ git config --global core.longpaths true
 dprint fmt
 
 # 2. 品質チェック (コミット前必須)
-pnpm run check:spells         # スペルチェック
+pnpm run lint:spells          # スペルチェック
 pnpm run lint:text            # 日本語リント
 pnpm run lint:markdown        # Markdownリント
+pnpm run lint:prompt          # プロンプトリント
 pnpm run lint:secrets         # シークレット検出
 
 # 3. Git操作
@@ -100,28 +101,39 @@ git commit    # フック自動実行、メッセージ自動生成
 git push
 ```
 
+注意:
+lint:spells, lint:text ではパラメータに編集したファイルを指定する。
+
 ### Git Hooks自動実行
 
-1. **pre-commit**: シークレットスキャン
-2. **prepare-commit-msg**: Conventional Commits 形式メッセージ自動生成
-3. **commit-msg**: コミットメッセージ形式検証
+1. pre-commit: シークレットスキャン
+2. prepare-commit-msg* Conventional Commits 形式メッセージ自動生成
+3. commit-msg: コミットメッセージ形式検証
 
 **詳細**: [`docs/dev-guides/ci-cd.md`](docs/dev-guides/ci-cd.md)
+
+## 執筆スタイル
+
+記事を執筆・レビューする際は、著者本人の文章上の癖と思考の型をまとめた下記ルールを参照します。
+
+@.claude/rules/writing-style-atsushifx.md
+
+**NOTE**: 執筆時に必ず適用する規範のみを抜き出したものが、article-writer.prompt の執筆指示 5 です。実測値・用例の詳細は本ルール側にあります。
 
 ## AI作業時の注意
 
 ### 禁止事項
 
-- `tech-articles-prompt/` 内のプロンプトファイルの安易な変更
-- 設定ファイルのルート直下配置 (`configs/` に集約)
+- `tech-articles-prompt/`内のプロンプトファイルの安易な変更
+- 設定ファイルのルート直下配置 (`configs/`に集約)
 - CRLF 改行の使用
 - Conventional Commits 形式外のコミットメッセージ
 
 ### Windows固有の注意
 
-- Git Bash 必須: `scripts/` 内の bash スクリプト実行時
+- Git Bash 必須: `scripts/`内の bash スクリプト実行時
 - LF 改行: Windows 環境でも LF (CR+LF に自動変換しない)
-- パス長制限: `core.longpaths true` を設定済み
+- パス長制限: `core.longpaths true`を設定済み
 
 ### 推奨作業手順
 
